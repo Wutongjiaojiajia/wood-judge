@@ -2,7 +2,7 @@
   "name": "wood-judge",
   "version": "0.1.0",
   "private": true,
-  "homepage":"https://wutongjiaojiajia.github.io/wood-judge-one",
+  "homepage":"https://wutongjiaojiajia.github.io/wood-judge",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
