@@ -335,7 +335,7 @@ export default {
 		this.calculateShavingsPricePerM3();
 		this.calculateFinalPrice();
 
-		console.log("测试CI部署");
+		console.log("测试CI部署111111111");
 	},
 	methods: {
 		// 计算标准体积
