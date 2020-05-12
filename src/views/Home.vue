@@ -334,6 +334,8 @@ export default {
 		this.calculatePanelPricePerM3({height:'22',price:this.panel22Price});
 		this.calculateShavingsPricePerM3();
 		this.calculateFinalPrice();
+
+		console.log("测试CI部署");
 	},
 	methods: {
 		// 计算标准体积
