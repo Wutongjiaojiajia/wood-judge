@@ -18,12 +18,12 @@
 FROM node:lts-alpine
 RUN yum install -y nginx
 
-WORKDIR /opt/app/wood
+WORKDIR /app
 
-COPY . /opt/app/wood
+COPY . /app
 
 EXPOSE 80
 
-RUN npm install && npm run build && cp -r dist/* ./wood && rm -rf /opt/app/wood
+RUN npm install && npm run build && cp -r dist/* /opt/app/wood && rm -rf /app
 
 CMD ["nginx","-g","daemon off;"]
