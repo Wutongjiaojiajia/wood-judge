@@ -48,6 +48,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker login -u 唔通叫家家 -p Aa19961023. registry.cn-shenzhen.aliyuncs.com 
-          docker build -t wood-judge:latest
-          docker tag wood-judge registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy:latest
-          docker push registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy:latest
+          docker build -f Dockerfile -t wood-judge:latest
+          docker tag wood-judge:latest registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy/wood-judge:latest
+          docker push registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy/wood-judge:latest
