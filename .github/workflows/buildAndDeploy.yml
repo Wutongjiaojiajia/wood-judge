@@ -32,17 +32,15 @@ jobs:
     steps:
       - name: checkout #将代码拷贝到虚拟机
         uses: actions/checkout@v2
-      # 安装使用 node:10
-      - name: use Node.js 10
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10 
+      # 安装使用 node:12
+      - name: setup Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12' 
       - name: Install Dependencies And Build #安装依赖
         run: | 
           npm install
           npm run build
-        env:
-          CI: true
 
 
 
