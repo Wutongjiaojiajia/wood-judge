@@ -15,15 +15,27 @@
 # CMD ["nginx","-g","daemon off;"]
 
 # 使用node
-FROM node:lts-alpine
-RUN yum install -y nginx
+# FROM node:lts-alpine
+# RUN yum install -y nginx
 
+# WORKDIR /app
+
+# COPY . /app
+
+# EXPOSE 80
+
+# RUN npm install && npm run build && cp -r dist/* /opt/app/wood && rm -rf /app
+
+# CMD ["nginx","-g","daemon off;"]
+
+FROM node:lts-alpine as build-stage
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-COPY . /app
-
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist  /opt/app/wood
 EXPOSE 80
-
-RUN npm install && npm run build && cp -r dist/* /opt/app/wood && rm -rf /app
-
 CMD ["nginx","-g","daemon off;"]
