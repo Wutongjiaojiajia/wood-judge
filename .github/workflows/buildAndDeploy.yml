@@ -47,7 +47,7 @@ jobs:
           CI: true
       - name: Build Docker image
         run: |
-          docker login --username= ${{aliyun_docker_username}} registry.cn-shenzhen.aliyuncs.com --password= ${{aliyun_docker_password}}
+          docker login --username=${{secrets.aliyun_docker_username}} registry.cn-shenzhen.aliyuncs.com --password=${{secrets.aliyun_docker_password}}
           docker build -t wood-judge:latest
           docker tag wood-judge registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy:latest
           docker push registry.cn-shenzhen.aliyuncs.com/wutongjiaojiajia/wood-vue-deploy:latest
