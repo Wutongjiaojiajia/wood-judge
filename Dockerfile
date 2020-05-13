@@ -29,6 +29,6 @@
 # CMD ["nginx","-g","daemon off;"]
 
 FROM nginx:stable-alpine 
-COPY /dist  /opt/app/wood
+COPY ./dist  /opt/app/wood
 EXPOSE 80
 CMD ["nginx","-g","daemon off;"]
