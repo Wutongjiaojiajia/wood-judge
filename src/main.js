@@ -4,6 +4,7 @@ import Vant from 'vant';
 import 'vant/lib/index.css'
 import 'vant/lib/icon/local.css';
 import '@/style/index.less';
+import '@/style/public.less';
 import router from './router'
 import store from './store'
 

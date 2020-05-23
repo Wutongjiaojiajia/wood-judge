@@ -1,13 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import home from '../views/Home.vue'
+import calculate from '../views/Calculate.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path:'*',
-    redirect: '/home'
+    redirect: '/calculate'
   },
   {
     path: '/home',
@@ -15,6 +16,14 @@ const routes = [
     component: home,
     meta:{
       title: '主页'
+    }
+  },
+  {
+    path:'/calculate',
+    name:'calculate',
+    component:calculate,
+    meta:{
+      title:'计算'
     }
   }
 ]
