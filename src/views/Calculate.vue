@@ -76,12 +76,17 @@
                     </van-cell>
                     <van-divider />
                 </div>
-                <div class="tagStyle">
+                <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材质量统计</van-tag>
+                    <van-icon 
+                        name="exchange" 
+                        size="16px" 
+                        color="#999999"
+                        @click="changeQualityStatisticsState()"/>
                 </div>
-                <van-cell-group>
-                    <van-cell class="m-quality-input"
-                        v-for="(item,index) in qualityStatustics"
+                <van-cell-group v-show="qualityStatisticsState === 0">
+                    <van-cell class="m-quality-stepper"
+                        v-for="(item,index) in qualityStatistics"
                         :key="index"
                         :title="item.recordTitle">
                         <template>
@@ -93,6 +98,18 @@
                                 default-value="0"/>
                         </template>
                     </van-cell>
+                </van-cell-group>
+                <van-cell-group v-show="qualityStatisticsState === 1">
+                    <van-field class="m-quality-input"
+                        v-for="(item,index) in qualityStatistics"
+                        :key="index"
+                        :label="item.resultTitle"
+                        clearable 
+                        :placeholder="'请输入'+item.quality+'质量占比'"
+                        type="number"
+                        v-model="item.percentDisplay"
+                        @change="exchangeQualityPercent({percentDisplay:item.percentDisplay,index:index})">
+                    </van-field>
                 </van-cell-group>
             </div>
             <div class="m-bottom">
@@ -118,10 +135,10 @@
                     </van-tag>
                     <van-cell-group>
                         <van-cell
-                            v-for="(item,index) in qualityStatustics"
+                            v-for="(item,index) in qualityStatistics"
                             :key="index"
                             :title="item.resultTitle" 
-                            :value="item.percentDisplay">
+                            :value="item.percentDisplay+'%'">
                         </van-cell>
                     </van-cell-group>
                     <van-tag
@@ -132,7 +149,7 @@
                             v-for="(item,index) in thicknessStatistics"
                             :key="index"
                             :title="item.resultTitle" 
-                            :value="item.percentDisplay">
+                            :value="item.percentDisplay+'%'">
                         </van-cell>
                     </van-cell-group>
                     <van-tag
@@ -193,15 +210,16 @@ export default {
             ],  // 厚度列表
             thicknessStatistics:[
                 // thickness resultTitle随着选择而改变
-                {thickness:18,resultTitle:'18mm',total:0,percent:'0',percentDisplay:'0%'},
-                {thickness:20,resultTitle:'20mm',total:0,percent:'0',percentDisplay:'0%'},
-                {thickness:22,resultTitle:'22mm',total:0,percent:'0',percentDisplay:'0%'}
+                {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
+                {thickness:20,resultTitle:'20mm',total:0,percent:'',percentDisplay:''},
+                {thickness:22,resultTitle:'22mm',total:0,percent:'',percentDisplay:''}
             ],  // 厚度统计
             /** 木材质量统计 */
-            qualityStatustics:[
-                {recordTitle:'A(条)',resultTitle:'A(%)',quality:'A',total:0,percent:'0',percentDisplay:'0%'},
-                {recordTitle:'B(条)',resultTitle:'B(%)',quality:'B',total:0,percent:'0',percentDisplay:'0%'},
-                {recordTitle:'C(条)',resultTitle:'C(%)',quality:'C',total:0,percent:'0',percentDisplay:'0%'}
+            qualityStatisticsState:0,   //0-条数统计 1-百分比统计
+            qualityStatistics:[
+                {recordTitle:'A(条)',resultTitle:'A(%)',quality:'A',total:0,percent:'',percentDisplay:''},
+                {recordTitle:'B(条)',resultTitle:'B(%)',quality:'B',total:0,percent:'',percentDisplay:''},
+                {recordTitle:'C(条)',resultTitle:'C(%)',quality:'C',total:0,percent:'',percentDisplay:''}
             ],  // 质量统计
             /** 信息记录结束 */
             /** 计算结果开始 */
@@ -230,6 +248,24 @@ export default {
             let { value,index } = info;
             this.thicknessStatistics[index].resultTitle = `${value}mm`;
         },
+        // 切换质量统计方式
+        changeQualityStatisticsState(){
+            this.qualityStatisticsState = this.qualityStatisticsState === 0?1:0;
+            this.qualityStatistics.forEach(item => {
+                item.total = 0;
+                item.percent = '';
+                item.percentDisplay = '';
+            });
+        },
+        // 质量百分比输入变化
+        exchangeQualityPercent(info){
+            let { percentDisplay,index } = info;
+            let percent = '';
+            if(percentDisplay !== ""){
+                percent = Number(percentDisplay) / 100;
+            }
+            this.qualityStatistics[index].percent = percent;
+        },
         // 跳转到下一页
         goToNextPage(){
             // 条件判断
@@ -257,16 +293,46 @@ export default {
                 this.$utils.failTip("请完善木材厚度统计信息");
                 return;
             }
-            let qualityStatusticsTotal = 0;
-            this.qualityStatustics.forEach(item => {
-                qualityStatusticsTotal += item.total;
-            });
-            if(qualityStatusticsTotal === 0){
-                this.$utils.failTip("请完善木材质量统计信息");
+            switch (this.qualityStatisticsState) {
+                case 0: // 数量统计
+                    let qualityStatusticsTotal = 0;
+                    this.qualityStatistics.forEach(item => {
+                        qualityStatusticsTotal += item.total;
+                    });
+                    if(qualityStatusticsTotal === 0){
+                        msg = "请完善木材质量统计信息";
+                    }
+                    break;
+                case 1: //百分比统计
+                    let qualityStatusticsPercentTotal = 0;
+                    for(let i = 0;i < this.qualityStatistics.length;i++){
+                        let item = this.qualityStatistics[i];
+                        if(item.percentDisplay === ""){
+                            msg = `请完善木材质量统计信息`;
+                            break;
+                        }
+                        qualityStatusticsPercentTotal += Number(item.percentDisplay);
+                        if(i === this.qualityStatistics.length - 1){
+                            if(qualityStatusticsPercentTotal !== 100){
+                                msg = `木材ABC质量百分比相加不为100`;
+                            }
+                        }
+                    }
+                    break;
+            }
+            if(msg!==""){
+                this.$utils.failTip(msg);
                 return;
             }
             this.calculatePercentOfThicknessOrQuality(this.thicknessStatistics);    // 计算厚度各占百分比
-            this.calculatePercentOfThicknessOrQuality(this.qualityStatustics);  // 计算ABC各占百分比
+            switch (this.qualityStatisticsState) {
+                case 0:
+                    this.calculatePercentOfThicknessOrQuality(this.qualityStatistics);  // 计算ABC各占百分比
+                    break;
+                case 1:
+                    this.exchangePercentOfThicknessOrQuality(this.qualityStatistics);   //切换小数位
+                    break;
+            }
             this.calculatePercentOfOutput();    //计算出材率
             this.calculateProductCost();    //计算成本
             this.calculateProductPrice();   //计算出厂价
@@ -284,7 +350,14 @@ export default {
             arr.forEach(item => {
                 let total = Number(item.total);
                 item.percent = (total / statisticsTotal).toFixed(4);
-                item.percentDisplay = `${(item.percent*100).toFixed(2)}%`;
+                item.percentDisplay = `${(item.percent*100).toFixed(2)}`;
+            });
+        },
+        // 切换厚度或质量百分比
+        exchangePercentOfThicknessOrQuality(arr){
+            arr.forEach(item => {
+                item.percent = Number(item.percent).toFixed(4);
+                item.percentDisplay = Number(item.percentDisplay).toFixed(2);
             });
         },
         // 计算出材率
@@ -306,7 +379,7 @@ export default {
             this.thicknessStatistics.forEach(item => {
                 let panel = this.panelPrice.filter(pItem=>pItem.thickness === item.thickness);
                 let perPanelPrice = panel[0];
-                thicknessPerPrice[item.thickness] = (Number(perPanelPrice.A) * Number(this.qualityStatustics[0].percent) + Number(perPanelPrice.B) * Number(this.qualityStatustics[1].percent) + Number(perPanelPrice.C) * Number(this.qualityStatustics[2].percent))*Number(item.percent);
+                thicknessPerPrice[item.thickness] = (Number(perPanelPrice.A) * Number(this.qualityStatistics[0].percent) + Number(perPanelPrice.B) * Number(this.qualityStatistics[1].percent) + Number(perPanelPrice.C) * Number(this.qualityStatistics[2].percent))*Number(item.percent);
             });
             let totalPrice = 0;
             for(let key in thicknessPerPrice){
@@ -404,11 +477,17 @@ export default {
                 border-color: #F7F7F7;
             }
         }
-        .m-quality-input{
+        .m-quality-stepper{
+            padding:8px 16px;
             .van-cell__title{
                 text-align: center;
             }
             .van-cell__value{
+                text-align: center;
+            }
+        }
+        .m-quality-input{
+            .van-cell__title{
                 text-align: center;
             }
         }
