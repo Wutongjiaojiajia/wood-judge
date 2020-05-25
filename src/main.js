@@ -7,9 +7,11 @@ import '@/style/index.less';
 import '@/style/public.less';
 import router from './router'
 import store from './store'
+import utils from '@/public/utils.js';  //引入公共方法
 
 Vue.config.productionTip = true;
 Vue.use(Vant);
+Vue.prototype.$utils=utils; // 将utils引入原型链
 
 new Vue({
   router,
