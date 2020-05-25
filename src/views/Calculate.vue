@@ -99,7 +99,7 @@
                 <van-button
                     size="large"
                     type="info"
-                    class="m-bottom-nextStep"
+                    class="m-bottom-button"
                     @click="goToNextPage()">下一步
                 </van-button>
             </div> 
@@ -121,7 +121,7 @@
                             v-for="(item,index) in qualityStatustics"
                             :key="index"
                             :title="item.resultTitle" 
-                            :value="item.percent">
+                            :value="item.percentDisplay">
                         </van-cell>
                     </van-cell-group>
                     <van-tag
@@ -132,7 +132,7 @@
                             v-for="(item,index) in thicknessStatistics"
                             :key="index"
                             :title="item.resultTitle" 
-                            :value="item.percent">
+                            :value="item.percentDisplay">
                         </van-cell>
                     </van-cell-group>
                     <van-tag
@@ -158,7 +158,8 @@
                 <van-button
                     size="large"
                     type="info"
-                    class="m-bottom-nextStep">返回
+                    class="m-bottom-button"
+                    @click="backToRecord()">返回
                 </van-button>
             </div> 
         </div>
@@ -170,7 +171,7 @@ export default {
     data () {
         return {
             /** 步骤条 */
-            stepsActive:1,
+            stepsActive:0,
             /** 信息记录开始 */
             /** 木材成本 */
             woodCost:'',    // 木材成本
@@ -191,25 +192,32 @@ export default {
                 { text: '22mm', value: 22 }
             ],  // 厚度列表
             thicknessStatistics:[
+                // thickness resultTitle随着选择而改变
                 {thickness:18,resultTitle:'18mm',total:0,percent:'0',percentDisplay:'0%'},
                 {thickness:20,resultTitle:'20mm',total:0,percent:'0',percentDisplay:'0%'},
                 {thickness:22,resultTitle:'22mm',total:0,percent:'0',percentDisplay:'0%'}
             ],  // 厚度统计
             /** 木材质量统计 */
             qualityStatustics:[
-                {recordTitle:'A(条)',resultTitle:'A(%)',quality:'A',total:0,percent:'0%',percentDisplay:'0%'},
-                {recordTitle:'B(条)',resultTitle:'B(%)',quality:'B',total:0,percent:'0%',percentDisplay:'0%'},
-                {recordTitle:'C(条)',resultTitle:'C(%)',quality:'C',total:0,percent:'0%',percentDisplay:'0%'}
+                {recordTitle:'A(条)',resultTitle:'A(%)',quality:'A',total:0,percent:'0',percentDisplay:'0%'},
+                {recordTitle:'B(条)',resultTitle:'B(%)',quality:'B',total:0,percent:'0',percentDisplay:'0%'},
+                {recordTitle:'C(条)',resultTitle:'C(%)',quality:'C',total:0,percent:'0',percentDisplay:'0%'}
             ],  // 质量统计
             /** 信息记录结束 */
-
             /** 计算结果开始 */
             percentOfOutput:'', //出材率
-
             productCost:'', //每立方米木材成本
             productPrice:'',    //每立方米木材出厂价
             profit:'',  //利润
             /** 计算结果结束 */
+            /** 板材价钱 */
+            panelPrice:[
+                {thickness:16,A:3400,B:3100,C:2250},
+                {thickness:17,A:3450,B:2950,C:2100},
+                {thickness:18,A:3350,B:2950,C:2100},
+                {thickness:20,A:3150,B:2700,C:2000},
+                {thickness:22,A:3200,B:2700,C:2000}
+            ]
         }
     },
     created () {
@@ -222,7 +230,6 @@ export default {
             let { value,index } = info;
             this.thicknessStatistics[index].resultTitle = `${value}mm`;
         },
-        
         // 跳转到下一页
         goToNextPage(){
             // 条件判断
@@ -258,29 +265,67 @@ export default {
                 this.$utils.failTip("请完善木材质量统计信息");
                 return;
             }
+            this.calculatePercentOfThicknessOrQuality(this.thicknessStatistics);    // 计算厚度各占百分比
+            this.calculatePercentOfThicknessOrQuality(this.qualityStatustics);  // 计算ABC各占百分比
+            this.calculatePercentOfOutput();    //计算出材率
+            this.calculateProductCost();    //计算成本
+            this.calculateProductPrice();   //计算出厂价
+            this.calculateProfit(); //计算利润
+            this.stepsActive = 1;
         },
-
         /** 计算结果 */
-        // 计算厚度百分比
-        calculatePercentOfThickness(){
+        // 计算厚度或质量百分比
+        calculatePercentOfThicknessOrQuality(arr){
             let statisticsTotal = 0;
-            this.thicknessStatistics.forEach(item => {
+            arr.forEach(item => {
                 let total = Number(item.total);
                 statisticsTotal += total;
             });
-            this.thicknessStatistics.forEach(element => {
+            arr.forEach(item => {
                 let total = Number(item.total);
-                let 
+                item.percent = (total / statisticsTotal).toFixed(4);
+                item.percentDisplay = `${(item.percent*100).toFixed(2)}%`;
             });
         },
         // 计算出材率
         calculatePercentOfOutput(){
             let averageThickness = 0;
             this.thicknessStatistics.forEach(item => {
-                let 
+                let thickness = Number(item.thickness) * Number(item.percent);
+                averageThickness += thickness;
             });
+            this.percentOfOutput = ((averageThickness / 12.7) * Number(this.level)).toFixed(4);
+        },
+        // 计算成本
+        calculateProductCost(){
+            this.productCost = ((Number(this.woodCost) / Number(this.percentOfOutput)) + Number(this.fixedCost)).toFixed(2);
+        },
+        // 计算出厂价
+        calculateProductPrice(){
+            let thicknessPerPrice = {};
+            this.thicknessStatistics.forEach(item => {
+                let panel = this.panelPrice.filter(pItem=>pItem.thickness === item.thickness);
+                let perPanelPrice = panel[0];
+                thicknessPerPrice[item.thickness] = (Number(perPanelPrice.A) * Number(this.qualityStatustics[0].percent) + Number(perPanelPrice.B) * Number(this.qualityStatustics[1].percent) + Number(perPanelPrice.C) * Number(this.qualityStatustics[2].percent))*Number(item.percent);
+            });
+            let totalPrice = 0;
+            for(let key in thicknessPerPrice){
+                totalPrice += Number(thicknessPerPrice[key]);
+            }
+            this.productPrice = (totalPrice + Number(this.shavingPrice)).toFixed(2);
+        },
+        // 计算利润
+        calculateProfit(){
+            this.profit = (Number(this.productPrice) - Number(this.productCost)).toFixed(2);
+        },
+        // 返回记录页
+        backToRecord(){
+            this.stepsActive = 0;
+            this.percentOfOutput = ''; //出材率
+            this.productCost = ''; //每立方米木材成本
+            this.productPrice = '';    //每立方米木材出厂价
+            this.profit = '';  //利润
         }
-
     }
 }
 </script>
@@ -376,7 +421,7 @@ export default {
         bottom: 0px;
         background-color: #F7F7F7;
         border-top: 1px solid #F7F7F7;
-        .m-bottom-nextStep{
+        .m-bottom-button{
             padding: 0 70px;
             margin-top: 8px;
             height: 40px;
