@@ -2,13 +2,14 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import home from '../views/Home.vue'
 import calculate from '../views/Calculate.vue'
+import priceMaintain from '../views/PriceMaintain.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path:'*',
-    redirect: '/calculate'
+    redirect: '/home'
   },
   {
     path: '/home',
@@ -23,9 +24,17 @@ const routes = [
     name:'calculate',
     component:calculate,
     meta:{
-      title:'计算'
+      title:'木材计算'
     }
-  }
+  },
+  {
+    path:'/priceMaintain',
+    name:'priceMaintain',
+    component:priceMaintain,
+    meta:{
+      title:'板价维护'
+    }
+  },
 ]
 
 const router = new VueRouter({routes})

@@ -56,7 +56,11 @@ export default {
         border-bottom: 1px solid #ebedf0;
         .m-list-title{
 			font-size: 18px;
-			font-weight:bold;
+            font-weight:bold;
+            -webkit-user-select:none;
+            -moz-user-select:none;
+            -ms-user-select:none;
+            user-select:none;
         }
     }
     .m-selectpage-list:nth-last-child(1){
