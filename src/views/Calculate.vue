@@ -52,7 +52,11 @@
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材厚度统计</van-tag>
                     <div>
-                        <van-icon name="plus" size="16px" color="#999999"/>
+                        <van-icon 
+                            name="plus" 
+                            size="16px" 
+                            color="#999999"
+                            @click="addWoodThicknessRow()"/>
                         <van-icon 
                             name="exchange" 
                             size="16px" 
@@ -95,7 +99,7 @@
                     </div>
                 </div>
                 <div v-show="thicknessStatisticsState === 1">
-                    <van-swipe-cell
+                    <div
                         class="m-dropDownMenuWithInput"
                         v-for="(item,index) in thicknessStatistics" 
                         :key="index">
@@ -105,21 +109,25 @@
                                 :options="thicknessList"
                                 @change="woodThicknessSelectChange({value:item.thickness,index:index})"/>
                         </van-dropdown-menu>
-                        <van-field
-                            label="测试" 
-                            clearable 
-                            placeholder="请输入木材厚度占比"
-                            type="number"
-                            v-model="item.percentDisplay"
-                            @change="exchangeThicknessPercent({percentDisplay:item.percentDisplay,index:index})">
-                        </van-field>
-                        <template #right>
-                            <van-button 
-                                square text="删除" 
-                                type="danger" 
-                                class="delete-button" />
-                        </template>
-                    </van-swipe-cell>
+                        <van-swipe-cell
+                            :before-close="deleteWoodThicknessRow">
+                            <van-field
+                                label="测试" 
+                                clearable 
+                                placeholder="请输入木材厚度占比"
+                                type="number"
+                                v-model="item.percentDisplay"
+                                @change="exchangeThicknessPercent({percentDisplay:item.percentDisplay,index:index})">
+                            </van-field>
+                            <template #right>
+                                <van-button 
+                                    square text="删除" 
+                                    type="danger" 
+                                    class="delete-button"
+                                    @click="selectDeleteRow(index)"/>
+                            </template>
+                        </van-swipe-cell>
+                    </div>
                 </div>
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材质量统计</van-tag>
@@ -315,6 +323,37 @@ export default {
             let { value,index } = info;
             this.thicknessStatistics[index].resultTitle = `${value}mm`;
         },
+        // 添加木材厚度统计行
+        addWoodThicknessRow(){
+            // 判断是否能继续新增行
+            if(this.thicknessStatistics.length+1 > this.thicknessList.length){
+                this.$dialog.alert({
+                    message:"当前不能继续新增行\n因为厚度统计行大于厚度记录行",
+                    className:'m-alertDialog'
+                }).then(()=>{
+
+                })
+                return;
+            }
+            let recordArr = []; // 获取thicknessList的value
+            let statisticsArr = [];    // 获取thicknessStatistics的thickness
+            this.thicknessList.forEach(item => {
+                recordArr.push(item.value);
+            })
+            this.thicknessStatistics.forEach(item => {
+                statisticsArr.push(item.thickness);
+            });
+            //差集=并集-交集  去除两个数组相同的元素
+            let differenceArr=recordArr.filter(item=>!statisticsArr.includes(item))
+            let obj = {
+                thickness:differenceArr[0],
+                resultTitle:`${differenceArr[0]}mm`,
+                total:0,
+                percent:'',
+                percentDisplay:''
+            };
+            this.thicknessStatistics.push(obj);
+        },
         // 删除木材厚度统计行
         deleteWoodThicknessRow({ position, instance }){
             switch (position) {
@@ -330,7 +369,8 @@ export default {
                 case 'right':
                     if(this.thicknessStatistics.length === 1){
                         this.$dialog.alert({
-                            message:'木材厚度统计至少要有一条数据'
+                            message:'木材厚度统计至少要有一条数据',
+                            className:'m-alertDialog'
                         }).then(()=>{
                             instance.close();
                             this.selectThicknessRowIndex = null;
@@ -339,6 +379,7 @@ export default {
                     }else{
                         this.$dialog.confirm({
                             message: '确定删除吗？',
+                            className:'m-alertDialog'
                         })
                         .then(() => {
                             this.thicknessStatistics.splice(this.selectThicknessRowIndex,1);
