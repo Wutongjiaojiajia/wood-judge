@@ -51,30 +51,62 @@
                 </div>
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材厚度统计</van-tag>
-                    <van-icon name="plus" size="16px" color="#999999"/>
+                    <div>
+                        <van-icon name="plus" size="16px" color="#999999"/>
+                        <van-icon 
+                            name="exchange" 
+                            size="16px" 
+                            color="#999999"
+                            @click="changeThicknessStatisticsState()" />
+                    </div>
                 </div>
-                <!-- 循环生成列表（木材厚度） -->
-                <div 
-                    class="m-dropDownMenuWithInput"
-                    v-for="(item,index) in thicknessStatistics" 
-                    :key="index">
-                    <van-dropdown-menu>
-                        <van-dropdown-item
-                            v-model="$data.thicknessStatistics[index].thickness" 
-                            :options="thicknessList"
-                            @change="woodThicknessSelectChange({value:item.thickness,index:index})"/>
-                    </van-dropdown-menu>
-                    <van-cell title="测试">
-                        <template>
-                            <van-stepper 
-                                v-model="$data.thicknessStatistics[index].total" 
-                                integer 
-                                input-width="64px"
-                                min="0"
-                                default-value="0"/>
-                        </template>
-                    </van-cell>
-                    <van-divider />
+                <div v-show="thicknessStatisticsState === 0">
+                    <!-- 循环生成列表（木材厚度） -->
+                    <div 
+                        class="m-dropDownMenuWithInput"
+                        v-for="(item,index) in thicknessStatistics" 
+                        :key="index">
+                        <van-dropdown-menu>
+                            <van-dropdown-item
+                                v-model="$data.thicknessStatistics[index].thickness" 
+                                :options="thicknessList"
+                                @change="woodThicknessSelectChange({value:item.thickness,index:index})"/>
+                        </van-dropdown-menu>
+                        <van-cell title="测试">
+                            <template>
+                                <van-stepper 
+                                    v-model="$data.thicknessStatistics[index].total" 
+                                    integer 
+                                    input-width="64px"
+                                    min="0"
+                                    default-value="0"/>
+                            </template>
+                        </van-cell>
+                        <van-divider />
+                    </div>
+                </div>
+                <div v-show="thicknessStatisticsState === 1">
+                    <!-- 循环生成列表（木材厚度） -->
+                    <div 
+                        class="m-dropDownMenuWithInput"
+                        v-for="(item,index) in thicknessStatistics" 
+                        :key="index">
+                        <van-dropdown-menu>
+                            <van-dropdown-item
+                                v-model="item.thickness" 
+                                :options="thicknessList"
+                                @change="woodThicknessSelectChange({value:item.thickness,index:index})"/>
+                        </van-dropdown-menu>
+                        <van-field
+                            label="测试" 
+                            clearable 
+                            placeholder="请输入木材厚度占比"
+                            type="number"
+                            v-model="item.percentDisplay"
+                            @change="exchangeThicknessPercent({percentDisplay:item.percentDisplay,index:index})">
+                        </van-field>
+                        <van-divider />
+                    </div>
                 </div>
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材质量统计</van-tag>
@@ -201,6 +233,7 @@ export default {
                 { text: 'C(0.92)', value:'0.92' }
             ],  //等级列表
             /** 木材厚度列表 */
+            thicknessStatisticsState:0, //0-条数统计 1-百分比统计
             thicknessList:[
                 { text: '16mm', value: 16 },
                 { text: '17mm', value: 17 },
@@ -243,6 +276,24 @@ export default {
     },
     methods: {
         /** 信息记录 */
+        // 切换厚度统计方式
+        changeThicknessStatisticsState(){
+            this.thicknessStatisticsState = this.thicknessStatisticsState === 0?1:0;
+            this.thicknessStatistics.forEach(item=>{
+                item.total = 0;
+                item.percent = '';
+                item.percentDisplay = '';
+            })
+        },
+        // 木材百分比输入变化
+        exchangeThicknessPercent(info){
+            let { percentDisplay,index } = info;
+            let percent = '';
+            if(percentDisplay !== ""){
+                percent = Number(percentDisplay) / 100;
+            }
+            this.thicknessStatistics[index].percent = percent;
+        },
         // 木材厚度选择变化
         woodThicknessSelectChange(info){
             let { value,index } = info;
@@ -285,12 +336,35 @@ export default {
                 this.$utils.failTip(msg);
                 return;
             }
-            let thicknessStatisticsTotal = 0;
-            this.thicknessStatistics.forEach(item => {
-                thicknessStatisticsTotal += item.total;
-            });
-            if(thicknessStatisticsTotal === 0){
-                this.$utils.failTip("请完善木材厚度统计信息");
+            switch (this.thicknessStatisticsState) {
+                case 0: //数量统计
+                    let thicknessStatisticsTotal = 0;
+                    this.thicknessStatistics.forEach(item => {
+                        thicknessStatisticsTotal += item.total;
+                    });
+                    if(thicknessStatisticsTotal === 0){
+                        msg = "请完善木材厚度统计信息";
+                    }
+                    break;
+                case 1: // 百分比统计
+                    let thicknessStatusticsPercentTotal = 0;
+                    for(let i = 0;i < this.thicknessStatistics.length;i++){
+                        let item = this.thicknessStatistics[i];
+                        if(item.percentDisplay === ""){
+                            msg = `请完善木材厚度统计信息`;
+                            break;
+                        }
+                        thicknessStatusticsPercentTotal += Number(item.percentDisplay);
+                        if(i === this.qualityStatistics.length - 1){
+                            if(thicknessStatusticsPercentTotal !== 100){
+                                msg = `木材厚度百分比相加不为100`;
+                            }
+                        }
+                    }
+                    break;
+            }
+            if(msg!==""){
+                this.$utils.failTip(msg);
                 return;
             }
             switch (this.qualityStatisticsState) {
@@ -324,7 +398,14 @@ export default {
                 this.$utils.failTip(msg);
                 return;
             }
-            this.calculatePercentOfThicknessOrQuality(this.thicknessStatistics);    // 计算厚度各占百分比
+            switch (this.thicknessStatisticsState) {
+                case 0:
+                    this.calculatePercentOfThicknessOrQuality(this.thicknessStatistics);    // 计算厚度各占百分比
+                    break;
+                case 1:
+                    this.exchangePercentOfThicknessOrQuality(this.thicknessStatistics);   //切换小数位
+                    break;
+            }
             switch (this.qualityStatisticsState) {
                 case 0:
                     this.calculatePercentOfThicknessOrQuality(this.qualityStatistics);  // 计算ABC各占百分比
@@ -434,6 +515,7 @@ export default {
         .m-woodLevel{
             .van-dropdown-menu__bar{
                 height: 44px;
+                box-shadow: none;
                 .van-dropdown-menu__title{
                     .van-ellipsis{
                         font-weight: bolder;
@@ -468,6 +550,7 @@ export default {
                 }
             }
             .van-cell{
+                height: 44px;
                 .van-cell__value{
                     text-align: center;
                 }
