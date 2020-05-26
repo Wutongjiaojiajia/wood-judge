@@ -6,7 +6,7 @@
             :key="index"
             :style="{'height':(100/list.length)+'%'}"
             @click="routeJump(item.route)">
-            <icon-svg :icon-class="item.icon" />
+            <icon-svg :icon-class="item.icon" @click="routeJump(item.route)"/>
             <p class="m-list-title">{{item.name}}</p>
         </div>
     </div>
@@ -55,7 +55,7 @@ export default {
         align-items: center;
         border-bottom: 1px solid #ebedf0;
         .m-list-title{
-			font-size: 18px;
+			font-size: 16px;
             font-weight:bold;
             -webkit-user-select:none;
             -moz-user-select:none;

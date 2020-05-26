@@ -1,6 +1,14 @@
 <template>
     <div class="m-view-calculate">
-        <van-nav-bar title="计算木材"/>
+        <van-nav-bar title="计算木材">
+            <template #left>
+                <van-icon 
+                    name="arrow-left" 
+                    size="20" 
+                    color="#999999"
+                    @click="backToHome()"/>
+            </template>
+        </van-nav-bar>
         <van-steps
             active-color="#38f"
             :active="stepsActive" 
@@ -295,10 +303,16 @@ export default {
         }
     },
     created () {
-        
+        this.getSettingsFromStorage();
     },
     methods: {
         /** 信息记录 */
+        backToHome(){
+            this.saveInfoRecordPage();  //保存页面信息
+            this.$router.push({
+                path:`/home`
+            })
+        },
         /** 木材厚度开始 */
         // 切换厚度统计方式
         changeThicknessStatisticsState(){
@@ -398,6 +412,34 @@ export default {
         selectDeleteRow(index){
             this.selectThicknessRowIndex = index;
             this.thicknessDeleteState = true;
+        },
+        // 存储信息记录页面的信息
+        saveInfoRecordPage(){
+            let obj = {
+                woodCost:this.woodCost, //木材成本
+                fixedCost:this.fixedCost,   //固定成本
+                shavingPrice:this.shavingPrice, //刨花
+                level:this.level,   //木材等级
+                thicknessStatisticsState:this.thicknessStatisticsState, //木材厚度统计状态
+                thicknessStatistics:this.thicknessStatistics,   //木材厚度统计
+                qualityStatisticsState:this.qualityStatisticsState, //质量统计状态
+                qualityStatistics:this.qualityStatistics,   //质量统计列表
+            }
+            this.$utils.saveStorage('personalRecordInfo',obj);
+        },
+        // 获取页面设置
+        getSettingsFromStorage(){
+            let info = this.$utils.getStorage('personalRecordInfo');
+            if(Object.keys(info).length !== 0){
+                this.woodCost = info.woodCost; //木材成本
+                this.fixedCost = info.fixedCost;   //固定成本
+                this.shavingPrice = info.shavingPrice; //刨花
+                this.level = info.level;   //木材等级
+                this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态
+                this.thicknessStatistics = info.thicknessStatistics;   //木材厚度统计
+                this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
+                this.qualityStatistics = info.qualityStatistics;   //质量统计列表
+            }
         },
         /** 木材厚度结束 */
 
@@ -591,6 +633,11 @@ export default {
 <style lang="less">
 .m-view-calculate{
     overflow-y: hidden;
+    .van-nav-bar{
+        .van-nav-bar__title{
+            font-weight: bolder;
+        }
+    }
     .m-steps{
         background: #F7F7F7;
         padding: 10px 50px 0;
