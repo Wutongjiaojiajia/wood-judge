@@ -68,26 +68,34 @@
                         :key="index">
                         <van-dropdown-menu>
                             <van-dropdown-item
-                                v-model="$data.thicknessStatistics[index].thickness" 
+                                v-model="item.thickness" 
                                 :options="thicknessList"
                                 @change="woodThicknessSelectChange({value:item.thickness,index:index})"/>
                         </van-dropdown-menu>
-                        <van-cell title="测试">
-                            <template>
-                                <van-stepper 
-                                    v-model="$data.thicknessStatistics[index].total" 
-                                    integer 
-                                    input-width="64px"
-                                    min="0"
-                                    default-value="0"/>
+                        <van-swipe-cell
+                            :before-close="deleteWoodThicknessRow">
+                            <van-cell title="测试">
+                                <template>
+                                    <van-stepper 
+                                        v-model="item.total" 
+                                        integer 
+                                        input-width="64px"
+                                        min="0"
+                                        default-value="0"/>
+                                </template>
+                            </van-cell>
+                            <template #right>
+                                <van-button 
+                                    square text="删除" 
+                                    type="danger" 
+                                    class="delete-button"
+                                    @click="selectDeleteRow(index)"/>
                             </template>
-                        </van-cell>
-                        <van-divider />
+                        </van-swipe-cell>
                     </div>
                 </div>
                 <div v-show="thicknessStatisticsState === 1">
-                    <!-- 循环生成列表（木材厚度） -->
-                    <div 
+                    <van-swipe-cell
                         class="m-dropDownMenuWithInput"
                         v-for="(item,index) in thicknessStatistics" 
                         :key="index">
@@ -105,8 +113,13 @@
                             v-model="item.percentDisplay"
                             @change="exchangeThicknessPercent({percentDisplay:item.percentDisplay,index:index})">
                         </van-field>
-                        <van-divider />
-                    </div>
+                        <template #right>
+                            <van-button 
+                                square text="删除" 
+                                type="danger" 
+                                class="delete-button" />
+                        </template>
+                    </van-swipe-cell>
                 </div>
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材质量统计</van-tag>
@@ -234,6 +247,8 @@ export default {
             ],  //等级列表
             /** 木材厚度列表 */
             thicknessStatisticsState:0, //0-条数统计 1-百分比统计
+            selectThicknessRowIndex:null,   //选中的厚度行
+            thicknessDeleteState:false, //厚度统计是否进入删除状态
             thicknessList:[
                 { text: '16mm', value: 16 },
                 { text: '17mm', value: 17 },
@@ -276,6 +291,7 @@ export default {
     },
     methods: {
         /** 信息记录 */
+        /** 木材厚度开始 */
         // 切换厚度统计方式
         changeThicknessStatisticsState(){
             this.thicknessStatisticsState = this.thicknessStatisticsState === 0?1:0;
@@ -299,6 +315,52 @@ export default {
             let { value,index } = info;
             this.thicknessStatistics[index].resultTitle = `${value}mm`;
         },
+        // 删除木材厚度统计行
+        deleteWoodThicknessRow({ position, instance }){
+            switch (position) {
+                case 'left':
+                case 'cell':
+                    instance.close();
+                    break;
+                case 'outside':
+                    if(!this.thicknessDeleteState){
+                        instance.close();
+                    }
+                    break;
+                case 'right':
+                    if(this.thicknessStatistics.length === 1){
+                        this.$dialog.alert({
+                            message:'木材厚度统计至少要有一条数据'
+                        }).then(()=>{
+                            instance.close();
+                            this.selectThicknessRowIndex = null;
+                            this.thicknessDeleteState = false;
+                        })
+                    }else{
+                        this.$dialog.confirm({
+                            message: '确定删除吗？',
+                        })
+                        .then(() => {
+                            this.thicknessStatistics.splice(this.selectThicknessRowIndex,1);
+                            instance.close();
+                            this.thicknessDeleteState = false;
+                        })
+                        .catch(()=>{
+                            instance.close();
+                            this.thicknessDeleteState = false;
+                        })
+                    }
+                break;
+            }
+        },
+        // 选中需要删除行
+        selectDeleteRow(index){
+            this.selectThicknessRowIndex = index;
+            this.thicknessDeleteState = true;
+        },
+        /** 木材厚度结束 */
+
+        /** 木材质量开始 */
         // 切换质量统计方式
         changeQualityStatisticsState(){
             this.qualityStatisticsState = this.qualityStatisticsState === 0?1:0;
@@ -317,6 +379,7 @@ export default {
             }
             this.qualityStatistics[index].percent = percent;
         },
+        /** 木材质量结束 */
         // 跳转到下一页
         goToNextPage(){
             // 条件判断
@@ -536,7 +599,7 @@ export default {
             .van-dropdown-menu__bar{
                 position: absolute;
                 top: 0;
-                height: 44px;
+                height: 43px;
                 box-shadow: none;
                 width: 125px;
                 z-index: 2;
@@ -553,11 +616,14 @@ export default {
                 height: 44px;
                 .van-cell__value{
                     text-align: center;
+                    height: 28px;
+
                 }
             }
-            .van-divider{
-                margin: 0;
-                border-color: #F7F7F7;
+            .van-swipe-cell__right{
+                .delete-button{
+                    height: 100%;
+                }
             }
         }
         .m-quality-stepper{
