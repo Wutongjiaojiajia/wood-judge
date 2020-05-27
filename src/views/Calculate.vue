@@ -1,6 +1,6 @@
 <template>
     <div class="m-view-calculate">
-        <van-nav-bar title="计算木材">
+        <van-nav-bar title="木材计算">
             <template #left>
                 <van-icon 
                     name="arrow-left" 
@@ -416,14 +416,10 @@ export default {
         // 存储信息记录页面的信息
         saveInfoRecordPage(){
             let obj = {
-                woodCost:this.woodCost, //木材成本
                 fixedCost:this.fixedCost,   //固定成本
                 shavingPrice:this.shavingPrice, //刨花
-                level:this.level,   //木材等级
                 thicknessStatisticsState:this.thicknessStatisticsState, //木材厚度统计状态
-                thicknessStatistics:this.thicknessStatistics,   //木材厚度统计
                 qualityStatisticsState:this.qualityStatisticsState, //质量统计状态
-                qualityStatistics:this.qualityStatistics,   //质量统计列表
             }
             this.$utils.saveStorage('personalRecordInfo',obj);
         },
@@ -431,14 +427,10 @@ export default {
         getSettingsFromStorage(){
             let info = this.$utils.getStorage('personalRecordInfo');
             if(Object.keys(info).length !== 0){
-                this.woodCost = info.woodCost; //木材成本
                 this.fixedCost = info.fixedCost;   //固定成本
                 this.shavingPrice = info.shavingPrice; //刨花
-                this.level = info.level;   //木材等级
                 this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态
-                this.thicknessStatistics = info.thicknessStatistics;   //木材厚度统计
                 this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
-                this.qualityStatistics = info.qualityStatistics;   //质量统计列表
             }
         },
         /** 木材厚度结束 */
