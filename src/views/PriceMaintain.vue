@@ -53,7 +53,7 @@
                                             square text="删除" 
                                             type="danger" 
                                             class="delete-button"
-                                            @click="selectDeleteRow(index)"/>
+                                            @click="selectDeleteRow(item)"/>
                                     </template>
                                 </van-swipe-cell>
                             </van-row>
@@ -120,11 +120,11 @@ export default {
         return {
             // 列表内容
             formData:[
-                {thickness:16,A:3400,B:3100,C:2250},
-                {thickness:17,A:3450,B:2950,C:2100},
-                {thickness:18,A:3350,B:2950,C:2100},
-                {thickness:20,A:3150,B:2700,C:2000},
-                {thickness:22,A:3200,B:2700,C:2000}
+                {id:1,thickness:16,A:3400,B:3100,C:2250},
+                {id:2,thickness:17,A:3450,B:2950,C:2100},
+                {id:3,thickness:18,A:3350,B:2950,C:2100},
+                {id:4,thickness:20,A:3150,B:2700,C:2000},
+                {id:5,thickness:22,A:3200,B:2700,C:2000}
             ],
             /** 关于加载的参数 */
             pullDownLoading:false,  //下拉刷新状态
@@ -138,7 +138,7 @@ export default {
 
             /** 表格参数 */
             rowDeleteState:false,   //行删除状态
-            selectRowIndex:null,    //选中行
+            selectRowData:null,    //选中行
             /** 表格参数结束 */
 
             /** 弹框参数 */
@@ -146,6 +146,7 @@ export default {
             popupType:'',   //弹框类型
             popupTitle:'',  //弹框标题
 
+            rowId:'',   //行id
             thickness:'',   //拼板厚度
             APrice:'',   //AA板价钱
             BPrice:'',   //AB板价钱
@@ -164,18 +165,22 @@ export default {
             let { type,data } = info;
             switch (type) {
                 case 'add':
+                    this.selectRowData = null;
                     this.popupTitle = '新增板价';
+                    this.rowId  = '';   //行id
                     this.thickness = '';    //厚度
                     this.APrice = '';    //AA价
                     this.BPrice = '';    //AB价
                     this.CPrice = '';    //CC价
                     break;
                 case 'edit':
+                    this.selectRowData = data;
                     this.popupTitle = '编辑板价';
-                    this.thickness = data.thickness;    //厚度
-                    this.APrice = data.A;    //AA价
-                    this.BPrice = data.B;    //AB价
-                    this.CPrice = data.C;    //CC价
+                    this.rowId  = this.selectRowData.id;   //行id
+                    this.thickness = this.selectRowData.thickness;    //厚度
+                    this.APrice = this.selectRowData.A;    //AA价
+                    this.BPrice = this.selectRowData.B;    //AB价
+                    this.CPrice = this.selectRowData.C;    //CC价
                     break;
             }
             this.popupType = type;
@@ -188,7 +193,7 @@ export default {
                 size:this.pageSize, //每页大小
             };
             this.pullDownLoading = true;
-            this.$http.queryQuotaScoreDetails(obj)
+            this.$http.queryPriceMaintainListInfo(obj)
             .then(res=>{
                 let { data } = res;
                 this.pullDownLoading = false;
@@ -225,7 +230,7 @@ export default {
                 size:this.pageSize, //每页大小
             };
             this.pullupLoading = true;  //上拉加载状态
-            this.$http.queryQuotaScoreDetails(obj)
+            this.$http.queryPriceMaintainListInfo(obj)
             .then(res=>{
                 this.pullupLoading = false; //上拉加载状态
                 let { data } = res;
@@ -260,10 +265,18 @@ export default {
                         message: '确定删除吗？',
                         className:'m-alertDialog'
                     })
-                    .then(() => {
-                        this.formData.splice(this.selectRowIndex,1);
-                        instance.close();
-                        this.rowDeleteState = false;
+                    .then(async () => {
+                        // this.formData.splice(this.selectRowIndex,1);
+                        try {
+                            let msg = await this.deleteRowData();
+                            this.$utils.successTip(msg);
+                            this.refreshList();
+                        } catch (error) {
+                            this.$utils.failTip(msg);
+                        } finally {
+                            instance.close();
+                            this.rowDeleteState = false;
+                        }
                     })
                     .catch(()=>{
                         instance.close();
@@ -273,9 +286,37 @@ export default {
             }
         },
         // 选中需要删除行
-        selectDeleteRow(index){
-            this.selectRowIndex = index;
+        selectDeleteRow(info){
+            this.selectRowData = info;
             this.rowDeleteState = true;
+        },
+        // 删除行数据
+        deleteRowData(){
+            return new Promise((resolve,reject)=>{
+                let obj = {
+                    id:this.selectRowData.id
+                };
+                this.$toast.loading({
+                    message: '删除中...',
+                    forbidClick: true,
+                    overlay:true
+                });
+                this.$http.deletePriceMaintainInfo(obj)
+                .then(res=>{
+                    this.$toast.clear();
+                    let { data } = res;
+                    if(data.code === 1){
+                        resolve('删除成功');
+                    }else{
+                        reject(data.info);
+                    }
+                })
+                .catch(err=>{
+                    this.$toast.clear();
+                    reject(err.response.data.info);
+                })
+            })
+
         },
         /** 弹框方法 */
         // 点击确认按钮
@@ -299,15 +340,44 @@ export default {
                 this.$utils.failTip(msg);
                 return;
             }
-            this.popupShow = false;
+            if(this.rowId){
+                this.addThicknessAndPrice();
+            }else{
+                this.editThicknessAndPrice();
+            }
         },
-        // 新增板价
+        // 新增or编辑板价
         addThicknessAndPrice(){
-
-        },
-        // 编辑板价
-        editThicknessAndPrice(){
-
+            let obj = {
+                thickness:this.thickness,   //厚度
+                A:this.APrice,  //AA板价钱
+                B:this.BPrice,  //AB板价钱
+                C:this.CPrice,  //CC板价钱
+            };
+            if(this.rowId){
+                obj.id = this.rowId;    //id
+            }
+            this.$toast.loading({
+                message: !this.rowId?'新增中...':'编辑中...',
+                forbidClick: true,
+                overlay:true
+            });
+            this.$http.updatePriceMaintainInfo(obj)
+            .then(res=>{
+                this.$toast.clear();
+                let { data } = res;
+                if(data.code === 1){
+                    this.$utils.successTip(data.info);
+                    this.refreshList();
+                    this.popupShow = false;
+                }else{
+                    this.$utils.failTip(data.info);
+                }
+            })
+            .catch(err=>{
+                this.$toast.clear();
+                this.$utils.failTip(`${err.response.data.info}`);
+            })
         }
     }
 }
