@@ -127,7 +127,7 @@ export default {
             pullupError:false,  //上拉加载错误
             totalPage:0,  //总页数
             pageNumber:0,    //第x页
-            pageSize:50,    //每次查询数量
+            pageSize:10000,    //每次查询数量
             /** 关于加载的参数 */
 
             /** 表格参数 */
