@@ -405,30 +405,19 @@ export default {
                     }
                     break;
                 case 'right':
-                    if(this.thicknessStatistics.length === 1){
-                        this.$dialog.alert({
-                            message:'木材厚度统计至少要有一条数据',
-                            className:'m-alertDialog'
-                        }).then(()=>{
-                            instance.close();
-                            this.selectThicknessRowIndex = null;
-                            this.thicknessDeleteState = false;
-                        })
-                    }else{
-                        this.$dialog.confirm({
-                            message: '确定删除吗？',
-                            className:'m-alertDialog'
-                        })
-                        .then(() => {
-                            this.thicknessStatistics.splice(this.selectThicknessRowIndex,1);
-                            instance.close();
-                            this.thicknessDeleteState = false;
-                        })
-                        .catch(()=>{
-                            instance.close();
-                            this.thicknessDeleteState = false;
-                        })
-                    }
+                    this.$dialog.confirm({
+                        message: '确定删除吗？',
+                        className:'m-alertDialog'
+                    })
+                    .then(() => {
+                        this.thicknessStatistics.splice(this.selectThicknessRowIndex,1);
+                        instance.close();
+                        this.thicknessDeleteState = false;
+                    })
+                    .catch(()=>{
+                        instance.close();
+                        this.thicknessDeleteState = false;
+                    })
                 break;
             }
         },
@@ -459,10 +448,29 @@ export default {
             if(Object.keys(info).length !== 0){
                 this.fixedCost = info.fixedCost;   //固定成本
                 this.shavingPrice = info.shavingPrice; //刨花
-                this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态
-                this.thicknessStatistics = info.thicknessStatistics,    // 木材厚度统计列表
+                this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态 
                 this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
             }
+            this.thicknessStatistics = [];
+            let recordArr = []; // 获取thicknessList的value
+            let statisticsArr = [];    // 获取info.thicknessStatistics的thickness
+            this.thicknessList.forEach(item => {
+                recordArr.push(item.value);
+            })
+            info.thicknessStatistics.forEach(item => {
+                statisticsArr.push(item.thickness);
+            });
+            let intersectArr = recordArr.filter(item=>statisticsArr.includes(item));    // 求交集
+            intersectArr.forEach(item => {
+                let obj = {
+                    thickness:item,
+                    resultTitle:`${item}mm`,
+                    total:0,
+                    percent:'',
+                    percentDisplay:''
+                };
+                this.thicknessStatistics.push(obj); // 木材厚度统计列表
+            });
         },
         /** 木材厚度结束 */
 
@@ -499,6 +507,9 @@ export default {
                     break;
                 case this.shavingPrice === "":
                     msg = "请输入刨花价钱";
+                    break;
+                case this.thicknessStatistics.length === 0:
+                    msg = "木材厚度统计至少要有一条记录";
                     break;
             }
             if(msg!==""){
