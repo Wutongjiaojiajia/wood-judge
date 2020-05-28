@@ -120,11 +120,11 @@ export default {
         return {
             // 列表内容
             formData:[
-                {id:1,thickness:16,A:3400,B:3100,C:2250},
-                {id:2,thickness:17,A:3450,B:2950,C:2100},
-                {id:3,thickness:18,A:3350,B:2950,C:2100},
-                {id:4,thickness:20,A:3150,B:2700,C:2000},
-                {id:5,thickness:22,A:3200,B:2700,C:2000}
+                // {id:1,thickness:16,A:3400,B:3100,C:2250},
+                // {id:2,thickness:17,A:3450,B:2950,C:2100},
+                // {id:3,thickness:18,A:3350,B:2950,C:2100},
+                // {id:4,thickness:20,A:3150,B:2700,C:2000},
+                // {id:5,thickness:22,A:3200,B:2700,C:2000}
             ],
             /** 关于加载的参数 */
             pullDownLoading:false,  //下拉刷新状态
@@ -152,6 +152,9 @@ export default {
             BPrice:'',   //AB板价钱
             CPrice:'',   //CC板价钱
         }
+    },
+    mounted () {
+        this.refreshList(); //刷新列表
     },
     methods: {
         // 返回首页
@@ -189,8 +192,8 @@ export default {
         // 初始化列表信息
         initList(){
             let obj = {
-                current:this.pageNumber+1,  //第x页
-                size:this.pageSize, //每页大小
+                currentPage:this.pageNumber+1,  //第x页
+                pageSize:this.pageSize, //每页大小
             };
             this.pullDownLoading = true;
             this.$http.queryPriceMaintainListInfo(obj)
@@ -226,8 +229,8 @@ export default {
         // 上拉加载列表
         pullupLoadList(){
             let obj = {
-                current:this.pageNumber+1,  //第x页
-                size:this.pageSize, //每页大小
+                currentPage:this.pageNumber+1,  //第x页
+                pageSize:this.pageSize, //每页大小
             };
             this.pullupLoading = true;  //上拉加载状态
             this.$http.queryPriceMaintainListInfo(obj)
@@ -266,7 +269,6 @@ export default {
                         className:'m-alertDialog'
                     })
                     .then(async () => {
-                        // this.formData.splice(this.selectRowIndex,1);
                         try {
                             let msg = await this.deleteRowData();
                             this.$utils.successTip(msg);
@@ -340,13 +342,13 @@ export default {
                 this.$utils.failTip(msg);
                 return;
             }
-            if(this.rowId){
+            if(this.rowId === ""){
                 this.addThicknessAndPrice();
             }else{
                 this.editThicknessAndPrice();
             }
         },
-        // 新增or编辑板价
+        // 新增板价信息
         addThicknessAndPrice(){
             let obj = {
                 thickness:this.thickness,   //厚度
@@ -354,11 +356,39 @@ export default {
                 B:this.BPrice,  //AB板价钱
                 C:this.CPrice,  //CC板价钱
             };
-            if(this.rowId){
-                obj.id = this.rowId;    //id
-            }
             this.$toast.loading({
-                message: !this.rowId?'新增中...':'编辑中...',
+                message:'新增中...',
+                forbidClick: true,
+                overlay:true
+            });
+            this.$http.insertPriceMaitainInfo(obj)
+            .then(res=>{
+                this.$toast.clear();
+                let { data } = res;
+                if(data.code === 1){
+                    this.$utils.successTip(data.info);
+                    this.refreshList();
+                    this.popupShow = false;
+                }else{
+                    this.$utils.failTip(data.info);
+                }
+            })
+            .catch(err=>{
+                this.$toast.clear();
+                this.$utils.failTip(`${err.response.data.info}`);
+            })
+        },
+        // 编辑板价信息
+        editThicknessAndPrice(){
+            let obj = {
+                id:this.rowId,  //id
+                thickness:this.thickness,   //厚度
+                A:this.APrice,  //AA板价钱
+                B:this.BPrice,  //AB板价钱
+                C:this.CPrice,  //CC板价钱
+            };
+            this.$toast.loading({
+                message:'编辑中...',
                 forbidClick: true,
                 overlay:true
             });
