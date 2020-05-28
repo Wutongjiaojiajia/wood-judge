@@ -188,6 +188,9 @@ export default {
             let obj = {
                 currentPage:this.pageNumber+1,  //第x页
                 pageSize:this.pageSize, //每页大小
+                eqParams:{
+                    state:1
+                },
                 orderBy:'thickness',    //厚度升序
             };
             this.pullDownLoading = true;
@@ -291,26 +294,29 @@ export default {
         deleteRowData(){
             return new Promise((resolve,reject)=>{
                 let obj = {
-                    id:this.selectRowData.id
+                    id:this.selectRowData.id,
+                    state:0,    //停用状态
                 };
                 this.$toast.loading({
                     message: '删除中...',
                     forbidClick: true,
                     overlay:true
                 });
-                this.$http.deletePriceMaintainInfo(obj)
+                this.$http.updatePriceMaintainInfo(obj)
                 .then(res=>{
                     this.$toast.clear();
                     let { data } = res;
                     if(data.code === 1){
                         resolve('删除成功');
                     }else{
-                        reject(data.info);
+                        // reject(data.info);
+                        reject('删除失败');
                     }
                 })
                 .catch(err=>{
                     this.$toast.clear();
-                    reject(err.response.data.info);
+                    // reject(err.response.data.info);
+                    reject('删除失败，请检查网络');
                 })
             })
 
@@ -350,6 +356,7 @@ export default {
                 A:this.APrice,  //AA板价钱
                 B:this.BPrice,  //AB板价钱
                 C:this.CPrice,  //CC板价钱
+                state:1,    //启用状态
             };
             this.$toast.loading({
                 message:'新增中...',
@@ -381,6 +388,7 @@ export default {
                 A:this.APrice,  //AA板价钱
                 B:this.BPrice,  //AB板价钱
                 C:this.CPrice,  //CC板价钱
+                state:1,    //启用状态
             };
             this.$toast.loading({
                 message:'编辑中...',
