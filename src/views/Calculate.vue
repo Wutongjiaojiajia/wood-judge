@@ -415,10 +415,16 @@ export default {
         },
         // 存储信息记录页面的信息
         saveInfoRecordPage(){
+            this.thicknessStatistics.forEach(item => {
+                item.total = 0;
+                item.percent = '';
+                item.percentDisplay = '';
+            });
             let obj = {
                 fixedCost:this.fixedCost,   //固定成本
                 shavingPrice:this.shavingPrice, //刨花
                 thicknessStatisticsState:this.thicknessStatisticsState, //木材厚度统计状态
+                thicknessStatistics:this.thicknessStatistics,   //木材厚度统计列表
                 qualityStatisticsState:this.qualityStatisticsState, //质量统计状态
             }
             this.$utils.saveStorage('personalRecordInfo',obj);
@@ -430,6 +436,7 @@ export default {
                 this.fixedCost = info.fixedCost;   //固定成本
                 this.shavingPrice = info.shavingPrice; //刨花
                 this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态
+                this.thicknessStatistics = info.thicknessStatistics,    // 木材厚度统计列表
                 this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
             }
         },
