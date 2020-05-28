@@ -119,13 +119,7 @@ export default {
     data () {
         return {
             // 列表内容
-            formData:[
-                // {id:1,thickness:16,A:3400,B:3100,C:2250},
-                // {id:2,thickness:17,A:3450,B:2950,C:2100},
-                // {id:3,thickness:18,A:3350,B:2950,C:2100},
-                // {id:4,thickness:20,A:3150,B:2700,C:2000},
-                // {id:5,thickness:22,A:3200,B:2700,C:2000}
-            ],
+            formData:[],
             /** 关于加载的参数 */
             pullDownLoading:false,  //下拉刷新状态
             pullupLoading:false,  //上拉加载状态
@@ -194,6 +188,7 @@ export default {
             let obj = {
                 currentPage:this.pageNumber+1,  //第x页
                 pageSize:this.pageSize, //每页大小
+                orderBy:'thickness',    //厚度升序
             };
             this.pullDownLoading = true;
             this.$http.queryPriceMaintainListInfo(obj)
