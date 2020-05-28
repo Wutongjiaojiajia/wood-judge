@@ -269,8 +269,6 @@ export default {
             thicknessStatistics:[
                 // thickness resultTitle随着选择而改变
                 // {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
-                // {thickness:20,resultTitle:'20mm',total:0,percent:'',percentDisplay:''},
-                // {thickness:22,resultTitle:'22mm',total:0,percent:'',percentDisplay:''}
             ],  // 厚度统计
             /** 木材质量统计 */
             qualityStatisticsState:0,   //0-条数统计 1-百分比统计
@@ -502,11 +500,20 @@ export default {
                 case this.woodCost === "":
                     msg = "请输入木材成本";
                     break;
+                case !this.$utils.validateCorrectMoney(Number(this.woodCost)):
+                    msg = "请输入正确的木材成本";
+                    break;
                 case this.fixedCost === "":
                     msg = "请输入固定成本";
                     break;
+                case !this.$utils.validateCorrectMoney(Number(this.fixedCost)):
+                    msg = "请输入正确的固定成本";
+                    break;
                 case this.shavingPrice === "":
                     msg = "请输入刨花价钱";
+                    break;
+                case !this.$utils.validateCorrectMoney(Number(this.shavingPrice)):
+                    msg = "请输入正确的刨花价钱";
                     break;
                 case this.thicknessStatistics.length === 0:
                     msg = "木材厚度统计至少要有一条记录";
