@@ -140,7 +140,6 @@ export default {
             popupType:'',   //弹框类型
             popupTitle:'',  //弹框标题
 
-            rowId:'',   //行id
             thickness:'',   //拼板厚度
             APrice:'',   //AA板价钱
             BPrice:'',   //AB板价钱
@@ -162,22 +161,18 @@ export default {
             let { type,data } = info;
             switch (type) {
                 case 'add':
-                    this.selectRowData = null;
                     this.popupTitle = '新增板价';
-                    this.rowId  = '';   //行id
                     this.thickness = '';    //厚度
                     this.APrice = '';    //AA价
                     this.BPrice = '';    //AB价
                     this.CPrice = '';    //CC价
                     break;
                 case 'edit':
-                    this.selectRowData = data;
                     this.popupTitle = '编辑板价';
-                    this.rowId  = this.selectRowData.id;   //行id
-                    this.thickness = this.selectRowData.thickness;    //厚度
-                    this.APrice = this.selectRowData.A;    //AA价
-                    this.BPrice = this.selectRowData.B;    //AB价
-                    this.CPrice = this.selectRowData.C;    //CC价
+                    this.thickness = data.thickness;    //厚度
+                    this.APrice = data.A;    //AA价
+                    this.BPrice = data.B;    //AB价
+                    this.CPrice = data.C;    //CC价
                     break;
             }
             this.popupType = type;
@@ -188,9 +183,6 @@ export default {
             let obj = {
                 currentPage:this.pageNumber+1,  //第x页
                 pageSize:this.pageSize, //每页大小
-                eqParams:{
-                    state:1
-                },
                 orderBy:'thickness',    //厚度升序
             };
             this.pullDownLoading = true;
@@ -294,29 +286,26 @@ export default {
         deleteRowData(){
             return new Promise((resolve,reject)=>{
                 let obj = {
-                    id:this.selectRowData.id,
-                    state:0,    //停用状态
+                    thickness:this.selectRowData.thickness
                 };
                 this.$toast.loading({
                     message: '删除中...',
                     forbidClick: true,
                     overlay:true
                 });
-                this.$http.updatePriceMaintainInfo(obj)
+                this.$http.deletePriceMaintainInfo(obj)
                 .then(res=>{
                     this.$toast.clear();
                     let { data } = res;
                     if(data.code === 1){
                         resolve('删除成功');
                     }else{
-                        // reject(data.info);
-                        reject('删除失败');
+                        reject(data.info);
                     }
                 })
                 .catch(err=>{
                     this.$toast.clear();
-                    // reject(err.response.data.info);
-                    reject('删除失败，请检查网络');
+                    reject(err.response.data.info);
                 })
             })
 
@@ -343,10 +332,13 @@ export default {
                 this.$utils.failTip(msg);
                 return;
             }
-            if(this.rowId === ""){
-                this.addThicknessAndPrice();
-            }else{
-                this.editThicknessAndPrice();
+            switch (this.popupType) {
+                case 'add':
+                    this.addThicknessAndPrice();
+                    break;
+                case 'edit':
+                    this.editThicknessAndPrice();
+                    break;
             }
         },
         // 新增板价信息
@@ -356,7 +348,6 @@ export default {
                 A:this.APrice,  //AA板价钱
                 B:this.BPrice,  //AB板价钱
                 C:this.CPrice,  //CC板价钱
-                state:1,    //启用状态
             };
             this.$toast.loading({
                 message:'新增中...',
@@ -383,12 +374,10 @@ export default {
         // 编辑板价信息
         editThicknessAndPrice(){
             let obj = {
-                id:this.rowId,  //id
                 thickness:this.thickness,   //厚度
                 A:this.APrice,  //AA板价钱
                 B:this.BPrice,  //AB板价钱
                 C:this.CPrice,  //CC板价钱
-                state:1,    //启用状态
             };
             this.$toast.loading({
                 message:'编辑中...',
