@@ -268,9 +268,9 @@ export default {
             thicknessList:[],  // 厚度列表
             thicknessStatistics:[
                 // thickness resultTitle随着选择而改变
-                {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
-                {thickness:20,resultTitle:'20mm',total:0,percent:'',percentDisplay:''},
-                {thickness:22,resultTitle:'22mm',total:0,percent:'',percentDisplay:''}
+                // {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
+                // {thickness:20,resultTitle:'20mm',total:0,percent:'',percentDisplay:''},
+                // {thickness:22,resultTitle:'22mm',total:0,percent:'',percentDisplay:''}
             ],  // 厚度统计
             /** 木材质量统计 */
             qualityStatisticsState:0,   //0-条数统计 1-百分比统计
@@ -450,27 +450,27 @@ export default {
                 this.shavingPrice = info.shavingPrice; //刨花
                 this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态 
                 this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
+                this.thicknessStatistics = [];
+                let recordArr = []; // 获取thicknessList的value
+                let statisticsArr = [];    // 获取info.thicknessStatistics的thickness
+                this.thicknessList.forEach(item => {
+                    recordArr.push(item.value);
+                })
+                info.thicknessStatistics.forEach(item => {
+                    statisticsArr.push(item.thickness);
+                });
+                let intersectArr = recordArr.filter(item=>statisticsArr.includes(item));    // 求交集
+                intersectArr.forEach(item => {
+                    let obj = {
+                        thickness:item,
+                        resultTitle:`${item}mm`,
+                        total:0,
+                        percent:'',
+                        percentDisplay:''
+                    };
+                    this.thicknessStatistics.push(obj); // 木材厚度统计列表
+                });
             }
-            this.thicknessStatistics = [];
-            let recordArr = []; // 获取thicknessList的value
-            let statisticsArr = [];    // 获取info.thicknessStatistics的thickness
-            this.thicknessList.forEach(item => {
-                recordArr.push(item.value);
-            })
-            info.thicknessStatistics.forEach(item => {
-                statisticsArr.push(item.thickness);
-            });
-            let intersectArr = recordArr.filter(item=>statisticsArr.includes(item));    // 求交集
-            intersectArr.forEach(item => {
-                let obj = {
-                    thickness:item,
-                    resultTitle:`${item}mm`,
-                    total:0,
-                    percent:'',
-                    percentDisplay:''
-                };
-                this.thicknessStatistics.push(obj); // 木材厚度统计列表
-            });
         },
         /** 木材厚度结束 */
 

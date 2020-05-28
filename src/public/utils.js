@@ -21,7 +21,14 @@ const failTip = (message) => {
     })
 }
 
+// 校验金额正则表达式
+const validateCorrectMoney = (num) => {
+    let reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
+    return reg.test(num);
+}
+
 export default {
     successTip,
-    failTip
+    failTip,
+    validateCorrectMoney
 }

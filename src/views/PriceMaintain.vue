@@ -328,19 +328,19 @@ export default {
                 case this.APrice === "":
                     msg = "请输入对应厚度AA板的价钱";
                     break;
-                case !this.validateCorrectMoney(Number(this.APrice)):
+                case !this.$utils.validateCorrectMoney(Number(this.APrice)):
                     msg = "请输入正确的AA板价钱";
                     break;
                 case this.BPrice === "":
                     msg = "请输入对应厚度AB板的价钱";
                     break;
-                case !this.validateCorrectMoney(Number(this.BPrice)):
+                case !this.$utils.validateCorrectMoney(Number(this.BPrice)):
                     msg = "请输入正确的AB板价钱";
                     break;
                 case this.CPrice === "":
                     msg = "请输入对应厚度CC板的价钱";
                     break;
-                case !this.validateCorrectMoney(Number(this.CPrice)):
+                case !this.$utils.validateCorrectMoney(Number(this.CPrice)):
                     msg = "请输入正确的CC板价钱";
                     break;
             }
@@ -417,11 +417,6 @@ export default {
                 this.$utils.failTip(`${err.response.data.info}`);
             })
         },
-        // 校验金额正则表达式
-        validateCorrectMoney(num){
-            let reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
-            return reg.test(num);
-        }
     }
 }
 </script>
