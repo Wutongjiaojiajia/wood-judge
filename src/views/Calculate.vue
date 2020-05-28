@@ -265,13 +265,7 @@ export default {
             thicknessStatisticsState:0, //0-条数统计 1-百分比统计
             selectThicknessRowIndex:null,   //选中的厚度行
             thicknessDeleteState:false, //厚度统计是否进入删除状态
-            thicknessList:[
-                { text: '16mm', value: 16 },
-                { text: '17mm', value: 17 },
-                { text: '18mm', value: 18 },
-                { text: '20mm', value: 20 },
-                { text: '22mm', value: 22 }
-            ],  // 厚度列表
+            thicknessList:[],  // 厚度列表
             thicknessStatistics:[
                 // thickness resultTitle随着选择而改变
                 {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
@@ -293,17 +287,11 @@ export default {
             profit:'',  //利润
             /** 计算结果结束 */
             /** 板材价钱 */
-            panelPrice:[
-                {thickness:16,A:3400,B:3100,C:2250},
-                {thickness:17,A:3450,B:2950,C:2100},
-                {thickness:18,A:3350,B:2950,C:2100},
-                {thickness:20,A:3150,B:2700,C:2000},
-                {thickness:22,A:3200,B:2700,C:2000}
-            ]
+            panelPrice:[]
         }
     },
     created () {
-        this.getSettingsFromStorage();
+        this.queryThicknessListInfo();
     },
     methods: {
         /** 信息记录 */
@@ -311,6 +299,42 @@ export default {
             this.saveInfoRecordPage();  //保存页面信息
             this.$router.push({
                 path:`/home`
+            })
+        },
+        // 查询有记录的木材厚度数据
+        queryThicknessListInfo(){
+            let obj = {
+                orderBy:'thickness',    //厚度升序
+            };
+            this.$toast.loading({
+                message: '查询中...',
+                forbidClick: true,
+                overlay:true
+            });
+            this.$http.queryPriceMaintainListInfo(obj)
+            .then(res=>{
+                let { data } = res;
+                this.$toast.clear();
+                if(data.code === 1 && data.total > 0){
+                    let originData = data.rows.splice(0);
+                    originData.forEach(item => {
+                        let thicknessObj = {
+                            text:`${item.thickness}mm`,
+                            value:Number(item.thickness)
+                        };
+                        this.thicknessList.push(thicknessObj);  //厚度列表
+                    });
+                    this.panelPrice = originData;   //价格数据
+                    this.getSettingsFromStorage();  //获取页面设置
+                }else{
+                    this.thicknessList = [];    //厚度列表
+                    this.panelPrice = []; //价格数据
+                }
+            })
+            .catch(err=>{
+                this.$toast.clear();
+                this.thicknessList = [];    //厚度列表
+                this.panelPrice = []; //价格数据
             })
         },
         /** 木材厚度开始 */

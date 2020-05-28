@@ -127,7 +127,7 @@ export default {
             pullupError:false,  //上拉加载错误
             totalPage:0,  //总页数
             pageNumber:0,    //第x页
-            pageSize:30,    //每次查询数量
+            pageSize:50,    //每次查询数量
             /** 关于加载的参数 */
 
             /** 表格参数 */
@@ -185,10 +185,16 @@ export default {
                 pageSize:this.pageSize, //每页大小
                 orderBy:'thickness',    //厚度升序
             };
+            this.$toast.loading({
+                message: '查询中...',
+                forbidClick: true,
+                overlay:true
+            });
             this.pullDownLoading = true;
             this.$http.queryPriceMaintainListInfo(obj)
             .then(res=>{
                 let { data } = res;
+                this.$toast.clear();
                 this.pullDownLoading = false;
                 if(data.code === 1 && data.total > 0){
                     let originData = data.rows.splice(0);
@@ -205,6 +211,7 @@ export default {
                 }
             })
             .catch(err=>{
+                this.$toast.clear();
                 this.pullDownLoading = false;
                 this.formData = []; //列表数据
                 this.totalPage = 1; //实际总页数
@@ -321,11 +328,20 @@ export default {
                 case this.APrice === "":
                     msg = "请输入对应厚度AA板的价钱";
                     break;
+                case !this.validateCorrectMoney(Number(this.APrice)):
+                    msg = "请输入正确的AA板价钱";
+                    break;
                 case this.BPrice === "":
                     msg = "请输入对应厚度AB板的价钱";
                     break;
+                case !this.validateCorrectMoney(Number(this.BPrice)):
+                    msg = "请输入正确的AB板价钱";
+                    break;
                 case this.CPrice === "":
                     msg = "请输入对应厚度CC板的价钱";
+                    break;
+                case !this.validateCorrectMoney(Number(this.CPrice)):
+                    msg = "请输入正确的CC板价钱";
                     break;
             }
             if(msg!==""){
@@ -400,6 +416,11 @@ export default {
                 this.$toast.clear();
                 this.$utils.failTip(`${err.response.data.info}`);
             })
+        },
+        // 校验金额正则表达式
+        validateCorrectMoney(num){
+            let reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
+            return reg.test(num);
         }
     }
 }
