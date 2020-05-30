@@ -188,6 +188,7 @@ export default {
             this.$toast.loading({
                 message: '查询中...',
                 forbidClick: true,
+                duration:0,
                 overlay:true
             });
             this.pullDownLoading = true;
@@ -298,6 +299,7 @@ export default {
                 this.$toast.loading({
                     message: '删除中...',
                     forbidClick: true,
+                    duration:0,
                     overlay:true
                 });
                 this.$http.deletePriceMaintainInfo(obj)
@@ -368,6 +370,7 @@ export default {
             this.$toast.loading({
                 message:'新增中...',
                 forbidClick: true,
+                duration:0,
                 overlay:true
             });
             this.$http.insertPriceMaitainInfo(obj)
@@ -398,6 +401,7 @@ export default {
             this.$toast.loading({
                 message:'编辑中...',
                 forbidClick: true,
+                duration:0,
                 overlay:true
             });
             this.$http.updatePriceMaintainInfo(obj)

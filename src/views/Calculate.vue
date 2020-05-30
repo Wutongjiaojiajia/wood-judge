@@ -285,7 +285,12 @@ export default {
             thicknessStatisticsState:0, //0-条数统计 1-百分比统计
             selectThicknessRowIndex:null,   //选中的厚度行
             thicknessDeleteState:false, //厚度统计是否进入删除状态
-            thicknessList:[],  // 厚度列表
+            originThicknessList:[
+                // {text:"16mm",value:16}
+            ], //厚度列表
+            thicknessList:[
+                // {text:"16mm",value:16}
+            ],  // 厚度列表
             thicknessStatistics:[
                 // thickness resultTitle随着选择而改变
                 // {thickness:18,resultTitle:'18mm',total:0,percent:'',percentDisplay:''},
@@ -319,6 +324,10 @@ export default {
                 path:`/home`
             })
         },
+        // 木材规格选中值变化时
+        changeWoodStandardValue(){
+
+        },
         // 查询有记录的木材厚度数据
         queryThicknessListInfo(){
             let obj = {
@@ -327,6 +336,7 @@ export default {
             this.$toast.loading({
                 message: '查询中...',
                 forbidClick: true,
+                duration:0,
                 overlay:true
             });
             this.$http.queryPriceMaintainListInfo(obj)
@@ -340,17 +350,20 @@ export default {
                             text:`${item.thickness}mm`,
                             value:Number(item.thickness)
                         };
+                        this.originThicknessList.push(thicknessObj);    //完整厚度列表
                         this.thicknessList.push(thicknessObj);  //厚度列表
                     });
                     this.panelPrice = originData;   //价格数据
-                    this.getSettingsFromStorage();  //获取页面设置
                 }else{
+                    this.originThicknessList = [];  //完整厚度列表
                     this.thicknessList = [];    //厚度列表
                     this.panelPrice = []; //价格数据
                 }
+                this.getSettingsFromStorage();  //获取页面设置
             })
             .catch(err=>{
                 this.$toast.clear();
+                this.originThicknessList = [];  //完整厚度列表
                 this.thicknessList = [];    //厚度列表
                 this.panelPrice = []; //价格数据
             })
