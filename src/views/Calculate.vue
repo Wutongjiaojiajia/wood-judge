@@ -26,7 +26,8 @@
                     <van-dropdown-menu>
                         <van-dropdown-item
                             v-model="standard" 
-                            :options="standardList"/>
+                            :options="standardList"
+                            @change="changeWoodStandardValue()"/>
                     </van-dropdown-menu>
                 </div>
                 <div class="tagStyle">
@@ -326,7 +327,19 @@ export default {
         },
         // 木材规格选中值变化时
         changeWoodStandardValue(){
-
+            let tempArr = [];
+            switch (this.standard) {
+                case '0.5':
+                    tempArr = this.originThicknessList.filter(item=>Number(item.value)>=16 && Number(item.value)<=24);
+                    break;
+                case '0.625':
+                    tempArr = this.originThicknessList.filter(item=>Number(item.value)>24 && Number(item.value)<=30);
+                    break;
+                default:
+                    tempArr = JSON.parse(JSON.stringify(this.originThicknessList));
+                    break;
+            }
+            this.thicknessList = tempArr.splice(0);
         },
         // 查询有记录的木材厚度数据
         queryThicknessListInfo(){
@@ -360,6 +373,7 @@ export default {
                     this.panelPrice = []; //价格数据
                 }
                 this.getSettingsFromStorage();  //获取页面设置
+                this.changeWoodStandardValue(); //初始板材厚度列表
             })
             .catch(err=>{
                 this.$toast.clear();
@@ -478,9 +492,9 @@ export default {
         getSettingsFromStorage(){
             let info = this.$utils.getStorage('personalRecordInfo');
             if(Object.keys(info).length !== 0){
-                this.standard = info.standard;  //木材规格
-                this.fixedCost = info.fixedCost;   //固定成本
-                this.shavingPrice = info.shavingPrice; //刨花
+                this.standard = info.standard?info.standard:'0.5';  //木材规格
+                this.fixedCost = info.fixedCost?info.fixedCost:'700';   //固定成本
+                this.shavingPrice = info.shavingPrice?info.shavingPrice:'130'; //刨花
                 this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态 
                 this.qualityStatisticsState = info.qualityStatisticsState; //质量统计状态
                 this.thicknessStatistics = [];
