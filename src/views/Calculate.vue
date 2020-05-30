@@ -20,6 +20,16 @@
         <div v-show="stepsActive === 0">
             <div ref="content" class="m-content">
                 <div class="tagStyle">
+                    <van-tag type="primary">木材规格</van-tag>
+                </div>
+                <div class="m-woodLevel">
+                    <van-dropdown-menu>
+                        <van-dropdown-item
+                            v-model="standard" 
+                            :options="standardList"/>
+                    </van-dropdown-menu>
+                </div>
+                <div class="tagStyle">
                     <van-tag type="primary">成本</van-tag>
                 </div>
                 <van-cell-group>    
@@ -172,15 +182,13 @@
                         @change="exchangeQualityPercent({percentDisplay:item.percentDisplay,index:index})">
                     </van-field>
                 </van-cell-group>
-            </div>
-            <div class="m-bottom">
                 <van-button
                     size="large"
                     type="info"
                     class="m-bottom-button"
                     @click="goToNextPage()">下一步
                 </van-button>
-            </div> 
+            </div>
         </div>
         <div v-show="stepsActive === 1">
             <div class="m-content">
@@ -188,58 +196,62 @@
                     <van-tag
                         type="primary">出材率
                     </van-tag>
-                    <van-cell-group>
-                        <van-cell title="出材率" :value="percentOfOutput" />
-                    </van-cell-group>
+                </div>
+                <van-cell-group>
+                    <van-cell title="出材率" :value="percentOfOutput" />
+                </van-cell-group>
+                <div class="tagStyle">
                     <van-tag
                         type="primary">质量统计
                     </van-tag>
-                    <van-cell-group>
-                        <van-cell
-                            v-for="(item,index) in qualityStatistics"
-                            :key="index"
-                            :title="item.resultTitle" 
-                            :value="item.percentDisplay+'%'">
-                        </van-cell>
-                    </van-cell-group>
+                </div>
+                <van-cell-group>
+                    <van-cell
+                        v-for="(item,index) in qualityStatistics"
+                        :key="index"
+                        :title="item.resultTitle" 
+                        :value="item.percentDisplay+'%'">
+                    </van-cell>
+                </van-cell-group>
+                <div class="tagStyle">
                     <van-tag
                         type="primary">厚度统计
                     </van-tag>
-                    <van-cell-group>
-                        <van-cell
-                            v-for="(item,index) in thicknessStatistics"
-                            :key="index"
-                            :title="item.resultTitle" 
-                            :value="item.percentDisplay+'%'">
-                        </van-cell>
-                    </van-cell-group>
+                </div>
+                <van-cell-group>
+                    <van-cell
+                        v-for="(item,index) in thicknessStatistics"
+                        :key="index"
+                        :title="item.resultTitle" 
+                        :value="item.percentDisplay+'%'">
+                    </van-cell>
+                </van-cell-group>
+                <div class="tagStyle">
                     <van-tag
                         type="primary">价格分析
                     </van-tag>
-                    <van-cell-group >
-                        <van-cell
-                            title="成本(元/m³)" 
-                            :value="productCost">
-                        </van-cell>
-                        <van-cell
-                            title="出厂价(元/m³)" 
-                            :value="productPrice">
-                        </van-cell>
-                        <van-cell
-                            title="利润(元/m³)" 
-                            :value="profit">
-                        </van-cell>
-                    </van-cell-group>
                 </div>
-            </div>
-            <div class="m-bottom">
+                <van-cell-group >
+                    <van-cell
+                        title="成本(元/m³)" 
+                        :value="productCost">
+                    </van-cell>
+                    <van-cell
+                        title="出厂价(元/m³)" 
+                        :value="productPrice">
+                    </van-cell>
+                    <van-cell
+                        title="利润(元/m³)" 
+                        :value="profit">
+                    </van-cell>
+                </van-cell-group>
                 <van-button
                     size="large"
                     type="info"
                     class="m-bottom-button"
                     @click="backToRecord()">返回
                 </van-button>
-            </div> 
+            </div>
         </div>
     </div>
 </template>
@@ -251,6 +263,14 @@ export default {
             /** 步骤条 */
             stepsActive:0,
             /** 信息记录开始 */
+            /** 木材规格 */
+            standard:'0.5',    //木材规格选中
+            standardList:[
+                { text: '4/8', value:'0.5' },
+                { text: '5/8', value:'0.625' },
+                { text: '6/8', value:'0.75' },
+                { text: '7/8', value:'0.875' },
+            ],    //木材规格列表
             /** 木材成本 */
             woodCost:'',    // 木材成本
             fixedCost:'700',    //固定成本
@@ -432,6 +452,7 @@ export default {
                 item.percentDisplay = '';
             });
             let obj = {
+                standard:this.standard, //木材规格
                 fixedCost:this.fixedCost,   //固定成本
                 shavingPrice:this.shavingPrice, //刨花
                 thicknessStatisticsState:this.thicknessStatisticsState, //木材厚度统计状态
@@ -444,6 +465,7 @@ export default {
         getSettingsFromStorage(){
             let info = this.$utils.getStorage('personalRecordInfo');
             if(Object.keys(info).length !== 0){
+                this.standard = info.standard;  //木材规格
                 this.fixedCost = info.fixedCost;   //固定成本
                 this.shavingPrice = info.shavingPrice; //刨花
                 this.thicknessStatisticsState = info.thicknessStatisticsState; //木材厚度统计状态 
@@ -497,6 +519,9 @@ export default {
             // 条件判断
             let msg = "";
             switch (true) {
+                case this.standard === "":
+                    msg = "请选择木材规格";
+                    break;
                 case this.woodCost === "":
                     msg = "请输入木材成本";
                     break;
@@ -514,6 +539,9 @@ export default {
                     break;
                 case !this.$utils.validateCorrectMoney(Number(this.shavingPrice)):
                     msg = "请输入正确的刨花价钱";
+                    break;
+                case this.level === "":
+                    msg = "请选择木材等级";
                     break;
                 case this.thicknessStatistics.length === 0:
                     msg = "木材厚度统计至少要有一条记录";
@@ -635,7 +663,7 @@ export default {
                 let thickness = Number(item.thickness) * Number(item.percent);
                 averageThickness += thickness;
             });
-            this.percentOfOutput = ((averageThickness / 12.7) * Number(this.level)).toFixed(4);
+            this.percentOfOutput = ((averageThickness / (25.4 * Number(this.standard))) * Number(this.level)).toFixed(4);
         },
         // 计算成本
         calculateProductCost(){
@@ -696,7 +724,7 @@ export default {
         top: 105px ;
         left: 0;
         right: 0;
-        bottom: 60px;
+        bottom: 0;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: #F7F7F7;
@@ -769,18 +797,9 @@ export default {
                 text-align: center;
             }
         }
-    }
-    .m-bottom{
-        position: absolute;
-        height: 60px;
-        left: 0px;
-        right: 0px;
-        bottom: 0px;
-        background-color: #F7F7F7;
-        border-top: 1px solid #F7F7F7;
         .m-bottom-button{
             padding: 0 70px;
-            margin-top: 8px;
+            margin: 10px 0px;
             height: 40px;
             border-radius: 10px;
             line-height: 30px;
