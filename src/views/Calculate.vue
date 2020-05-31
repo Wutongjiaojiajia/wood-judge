@@ -22,13 +22,24 @@
                 <div class="tagStyle">
                     <van-tag type="primary">木材规格</van-tag>
                 </div>
-                <div class="m-woodLevel">
-                    <van-dropdown-menu>
-                        <van-dropdown-item
-                            v-model="standard" 
-                            :options="standardList"
-                            @change="changeWoodStandardValue()"/>
-                    </van-dropdown-menu>
+                <div>
+                    <div class="m-woodStandard">
+                        <van-cell class="m-longtitle" title="木材厚度标准"></van-cell>
+                        <van-dropdown-menu>
+                            <van-dropdown-item
+                                v-model="standard" 
+                                :options="standardList"
+                                @change="changeWoodStandardValue()"/>
+                        </van-dropdown-menu>
+                    </div>
+                    <div class="m-woodStandard">
+                        <van-cell title="木材等级"></van-cell>
+                        <van-dropdown-menu>
+                            <van-dropdown-item
+                                v-model="level" 
+                                :options="levelList"/>
+                        </van-dropdown-menu>
+                    </div>
                 </div>
                 <div class="tagStyle">
                     <van-tag type="primary">成本</van-tag>
@@ -58,16 +69,6 @@
                         v-model="shavingPrice">
                     </van-field>
                 </van-cell-group>
-                <div class="tagStyle">
-                    <van-tag type="primary">木材等级</van-tag>
-                </div>
-                <div class="m-woodLevel">
-                    <van-dropdown-menu>
-                        <van-dropdown-item
-                            v-model="level" 
-                            :options="levelList"/>
-                    </van-dropdown-menu>
-                </div>
                 <div class="tagStyle m-tag-icon">
                     <van-tag type="primary">木材厚度统计</van-tag>
                     <div>
@@ -272,16 +273,16 @@ export default {
                 { text: '6/8', value:'0.75' },
                 { text: '7/8', value:'0.875' },
             ],    //木材规格列表
-            /** 木材成本 */
-            woodCost:'',    // 木材成本
-            fixedCost:'700',    //固定成本
-            shavingPrice:'130',    //刨花价钱
             /** 木材等级 */
             level:'0.95',   //木材等级
             levelList:[
                 { text: 'AB(0.95)', value:'0.95' },
                 { text: 'C(0.92)', value:'0.92' }
             ],  //等级列表
+            /** 木材成本 */
+            woodCost:'',    // 木材成本
+            fixedCost:'700',    //固定成本
+            shavingPrice:'130',    //刨花价钱
             /** 木材厚度列表 */
             thicknessStatisticsState:0, //0-条数统计 1-百分比统计
             selectThicknessRowIndex:null,   //选中的厚度行
@@ -561,7 +562,10 @@ export default {
             let msg = "";
             switch (true) {
                 case this.standard === "":
-                    msg = "请选择木材规格";
+                    msg = "请选择木材厚度标准";
+                    break;
+                case this.level === "":
+                    msg = "请选择木材等级";
                     break;
                 case this.woodCost === "":
                     msg = "请输入木材成本";
@@ -580,9 +584,6 @@ export default {
                     break;
                 case !this.$utils.validateCorrectMoney(Number(this.shavingPrice)):
                     msg = "请输入正确的刨花价钱";
-                    break;
-                case this.level === "":
-                    msg = "请选择木材等级";
                     break;
                 case this.thicknessStatistics.length === 0:
                     msg = "木材厚度统计至少要有一条记录";
@@ -771,19 +772,36 @@ export default {
         background-color: #F7F7F7;
         -webkit-overflow-scrolling: touch;
         // 信息记录样式
-        .m-longtitle{
-            font-size: 12px;
-        }
-        .m-woodLevel{
+        .m-woodStandard{
+            position: relative;
             .van-dropdown-menu__bar{
-                height: 44px;
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: 43px;
                 box-shadow: none;
+                width: calc(100% - 93px);
+                z-index: 2;
                 .van-dropdown-menu__title{
                     .van-ellipsis{
                         font-weight: bolder;
                     }
                 }
+                .van-dropdown-menu__item{
+                    flex:1;
+                }
             }
+            .van-cell{
+                height: 44px;
+                .van-cell__value{
+                    text-align: center;
+                    height: 28px;
+
+                }
+            }
+        }
+        .m-longtitle{
+            font-size: 12px;
         }
         .m-tag-icon{
             display: flex;
