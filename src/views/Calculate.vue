@@ -340,6 +340,20 @@ export default {
                     break;
             }
             this.thicknessList = tempArr.splice(0);
+            // 如果厚度列表长度 < 厚度统计长度
+            if(this.thicknessList.length < this.thicknessStatistics.length){
+                this.thicknessStatistics = this.thicknessStatistics.splice(0,this.thicknessList.length);
+            }
+            this.thicknessStatistics.forEach((item,index) => {
+                let tempObj = {
+                    thickness:Number(this.thicknessList[index].value),  //厚度
+                    resultTitle:this.thicknessList[index].text, //标题
+                    total:0,    //总数
+                    percent:'', 
+                    percentDisplay:''
+                };
+                Object.assign(item,tempObj);
+            });
         },
         // 查询有记录的木材厚度数据
         queryThicknessListInfo(){
