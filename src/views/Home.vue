@@ -57,10 +57,10 @@ export default {
         .m-list-title{
 			font-size: 16px;
             font-weight:bold;
-            -webkit-user-select:none;
-            -moz-user-select:none;
-            -ms-user-select:none;
-            user-select:none;
+            // -webkit-user-select:none;
+            // -moz-user-select:none;
+            // -ms-user-select:none;
+            // user-select:none;
         }
     }
     .m-selectpage-list:nth-last-child(1){

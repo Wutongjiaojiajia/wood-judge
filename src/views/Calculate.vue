@@ -1,5 +1,5 @@
 <template>
-    <div class="m-view-calculate">
+    <div class="m-view-calculate m-common">
         <van-nav-bar title="木材计算">
             <template #left>
                 <van-icon 
@@ -769,6 +769,7 @@ export default {
         overflow-y: auto;
         overflow-x: hidden;
         background-color: #F7F7F7;
+        -webkit-overflow-scrolling: touch;
         // 信息记录样式
         .m-longtitle{
             font-size: 12px;
