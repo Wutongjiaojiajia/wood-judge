@@ -29,7 +29,7 @@
                             <van-dropdown-item
                                 v-model="standard" 
                                 :options="standardList"
-                                @change="changeWoodStandardValue()"/>
+                                @change="changeWoodStandardValue(true)"/>
                         </van-dropdown-menu>
                     </div>
                     <div class="m-woodStandard">
@@ -327,7 +327,8 @@ export default {
             })
         },
         // 木材规格选中值变化时
-        changeWoodStandardValue(){
+        // type: true-改变时 false-初始化赋值
+        changeWoodStandardValue(type){
             let tempArr = [];
             switch (this.standard) {
                 case '0.5':
@@ -341,20 +342,22 @@ export default {
                     break;
             }
             this.thicknessList = tempArr.splice(0);
-            // 如果厚度列表长度 < 厚度统计长度
-            if(this.thicknessList.length < this.thicknessStatistics.length){
-                this.thicknessStatistics = this.thicknessStatistics.splice(0,this.thicknessList.length);
+            if(type){
+                // 如果厚度列表长度 < 厚度统计长度
+                if(this.thicknessList.length < this.thicknessStatistics.length){
+                    this.thicknessStatistics = this.thicknessStatistics.splice(0,this.thicknessList.length);
+                }
+                this.thicknessStatistics.forEach((item,index) => {
+                    let tempObj = {
+                        thickness:Number(this.thicknessList[index].value),  //厚度
+                        resultTitle:this.thicknessList[index].text, //标题
+                        total:0,    //总数
+                        percent:'', 
+                        percentDisplay:''
+                    };
+                    Object.assign(item,tempObj);
+                });
             }
-            this.thicknessStatistics.forEach((item,index) => {
-                let tempObj = {
-                    thickness:Number(this.thicknessList[index].value),  //厚度
-                    resultTitle:this.thicknessList[index].text, //标题
-                    total:0,    //总数
-                    percent:'', 
-                    percentDisplay:''
-                };
-                Object.assign(item,tempObj);
-            });
         },
         // 查询有记录的木材厚度数据
         queryThicknessListInfo(){
@@ -388,7 +391,7 @@ export default {
                     this.panelPrice = []; //价格数据
                 }
                 this.getSettingsFromStorage();  //获取页面设置
-                this.changeWoodStandardValue(); //初始板材厚度列表
+                this.changeWoodStandardValue(false); //初始板材厚度列表
             })
             .catch(err=>{
                 this.$toast.clear();
