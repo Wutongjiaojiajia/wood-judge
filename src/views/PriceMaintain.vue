@@ -75,7 +75,8 @@
                     label="厚度(mm)*" 
                     placeholder="请输入拼板厚度"
                     clearable
-                    type="number">
+                    type="number"
+                    :readonly="popupType === 'edit'">
                 </van-field>
             </van-cell-group>
             <van-cell-group>
