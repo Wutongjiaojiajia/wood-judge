@@ -27,8 +27,15 @@ const validateCorrectMoney = (num) => {
     return reg.test(num);
 }
 
+// 校验正整数正则表达式
+const validateInteger = (num) => {
+    let reg = /^[1-9]\d*$/;
+    return reg.test(num);
+}
+
 export default {
     successTip,
     failTip,
-    validateCorrectMoney
+    validateCorrectMoney,
+    validateInteger
 }
