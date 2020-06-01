@@ -127,7 +127,7 @@ export default {
             pullupError:false,  //上拉加载错误
             totalPage:0,  //总页数
             pageNumber:0,    //第x页
-            pageSize:10000,    //每次查询数量
+            pageSize:20,    //每次查询数量
             /** 关于加载的参数 */
 
             /** 表格参数 */
@@ -229,6 +229,7 @@ export default {
             let obj = {
                 currentPage:this.pageNumber+1,  //第x页
                 pageSize:this.pageSize, //每页大小
+                orderBy:'thickness',    //厚度升序
             };
             this.pullupLoading = true;  //上拉加载状态
             this.$http.queryPriceMaintainListInfo(obj)
@@ -237,7 +238,7 @@ export default {
                 let { data } = res;
                 if(data.code === 1 && data.total > 0){
                     let originData = data.rows.splice(0);
-                    this.formData = this.formData.concat(this.handleRowData(originData));    //合并列表数据
+                    this.formData = this.formData.concat(originData);    //合并列表数据
                     this.pageNumber += 1;
                     if(this.pageNumber >= this.totalPage){
                         this.finished = true;
