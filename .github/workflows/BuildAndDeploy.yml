@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-	build:
+	buildAndDeploy:
     runs-on: ubuntu-latest
     steps:
 		# 切换分支
@@ -15,12 +15,12 @@ jobs:
 			with:
 				args: git submodule update --init --recursive
 		# 使用 node:10
-		- name: use Node.js 10
+		- name: Use Node.js 10
 			uses: actions/setup-node@v1
 			with:
 				node-version: 10
 		# npm install
-		- name: npm install and build
+		- name: Install Dependencies
 			run: |
 				npm install
 				npm run build
