@@ -28,7 +28,7 @@ jobs:
       - name: Modify File
         run: |
           # - sed -i "s/appenv:.*/appenv:\x20'qas',/" ./src/public/constant.js
-          sed -i "s/appenv.*$/appenv\x20=\x20'app';/" ./src/api/appenv.js
+          sed -i "0,/appenv/{s/appenv.*/appenv\x20=\x20'app';/}" ./src/api/appenv.js
           cat ./src/api/appenv.js
       # 安装依赖并且打包静态文件
       - name: npm install and build
