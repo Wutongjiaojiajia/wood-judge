@@ -8,17 +8,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    # 切换分支
-		- name: Checkout repository code
-			uses: actions/checkout@v2
-		# 下载 git submodule
-		- name: Download Git
-			uses: srt32/git-actions@v0.0.3
-			with:
-				args: git submodule update --init --recursive
-    - name: Use Node.js 10.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10.x
-    - run: npm i
-    - run: npm run build
+			# 切换分支
+			- name: Checkout repository code
+				uses: actions/checkout@v2
+			# 下载 git submodule
+			- name: Download Git
+				uses: srt32/git-actions@v0.0.3
+				with:
+					args: git submodule update --init --recursive
+			- name: Use Node.js 10.x
+				uses: actions/setup-node@v1
+				with:
+					node-version: 10.x
+			- run: npm i
+			- run: npm run build
