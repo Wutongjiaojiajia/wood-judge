@@ -21,14 +21,14 @@ export default {
     updatePriceMaintainInfo:(data)=>req({
         baseUrl:'wood',
         url:'priceMaintain/updateData',
-        method:'put',
+        method:'post',
         params:data,
     }),
     // 删除价格维护信息
     deletePriceMaintainInfo:(data)=>req({
         baseUrl:'wood',
         url:'priceMaintain/deleteData',
-        method:'delete',
+        method:'post',
         params:data
     })
 }
