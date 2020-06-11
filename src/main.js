@@ -11,11 +11,17 @@ import utils from '@/public/utils.js';  //引入公共方法
 import publicMethods from '@/public/public.js';  //引入公共方法
 import IconSvg from '@/components/icon-component';
 import api from '@/api';  //api
+import VConsole from 'vconsole';
+import appenv from '@/api/appenv';
 Vue.component('icon-svg', IconSvg)  //svg组件
 Vue.config.productionTip = true;
 Vue.use(Vant);
 Vue.prototype.$utils = Object.assign(utils,publicMethods); // 将utils引入原型链
 Vue.prototype.$http = api;  //将http引入原型链
+// if(appenv === 'dev'){
+  // 初始化 vconsole
+  const vconsole = new VConsole();
+// }
 
 new Vue({
   router,
