@@ -18,10 +18,10 @@ Vue.config.productionTip = true;
 Vue.use(Vant);
 Vue.prototype.$utils = Object.assign(utils,publicMethods); // 将utils引入原型链
 Vue.prototype.$http = api;  //将http引入原型链
-// if(appenv === 'dev'){
+if(appenv === 'dev'){
   // 初始化 vconsole
   const vconsole = new VConsole();
-// }
+}
 
 new Vue({
   router,
