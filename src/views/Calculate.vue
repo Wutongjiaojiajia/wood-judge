@@ -615,7 +615,7 @@ export default {
                             break;
                         }
                         thicknessStatusticsPercentTotal += Number(item.percentDisplay);
-                        if(i === this.qualityStatistics.length - 1){
+                        if(i === this.thicknessStatistics.length - 1){
                             if(thicknessStatusticsPercentTotal !== 100){
                                 msg = `木材厚度百分比相加不为100`;
                             }
